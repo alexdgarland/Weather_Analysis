@@ -1,16 +1,38 @@
 # -*- coding: utf-8 -*-
 
 import psycopg2 as pg
+import configparser as cp
+import os.path as osp
 
-def runquery():
 
-    conn = pg.connect(database="AG_Test", user="postgres", password="dummypassword")
+def getconfigparser():    
+    scriptdir = osp.dirname(osp.realpath(__file__))
+    cfglocation = osp.join(scriptdir, "config", "PostgresCredentials.cfg")
+    parser = cp.SafeConfigParser()
+    parser.read(cfglocation)
+    return parser    
+
+def getcredentials(parser, section="ADMIN"):
+    user = parser.get(section, "user")
+    password = parser.get(section, "password")
+    return (user, password)
+
+def runquery(querytext):
+    parser = getconfigparser()    
+    user, password = getcredentials(parser)
+    conn = pg.connect(database="AG_Test", user=user, password=password)
     cur = conn.cursor()
-    cur.execute('SELECT "RowID", "NumberValue", "TextDescription" FROM "TestTable"')
-    
-    for c in cur:
-        print("LINE: {0}, COMMAND: \"{1}\"".format(c[1], c[2]))
+    cur.execute(querytext)
+    return [c for c in cur]     # return results as a list
 
 
-if __name__ == '__main__':
-    runquery()
+def main():    
+
+    sql = 'SELECT "RowID", "NumberValue", "TextDescription" FROM "TestTable"'
+
+    for r in runquery(sql):
+        print("LINE: {0}, COMMAND: \"{1}\"".format(r[1], r[2]))
+
+
+if __name__ == '__main__':    
+    main()
