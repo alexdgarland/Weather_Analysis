@@ -4,8 +4,8 @@ DROP TABLE IF EXISTS "TestTable";
 CREATE TABLE "TestTable"
 (
   "RowID" serial NOT NULL,
-  "NumberValue" integer,
-  "TextDescription" character varying(500)
+  "NumberValue" integer NOT NULL,
+  "TextDescription" character varying(500) NOT NULL
 )
 WITH (OIDS=FALSE);
 
