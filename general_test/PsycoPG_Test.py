@@ -3,14 +3,14 @@
 import psycopg2 as pg
 import configparser as cp
 import os.path as osp
+import os
 
-
-def getconfigparser():    
-    scriptdir = osp.dirname(osp.realpath(__file__))
-    cfglocation = osp.join(scriptdir, "config", "PostgresCredentials.cfg")
+def getconfigparser():
+    pyconfigdir = os.environ['PythonAppConfigFolder']
+    cfglocation = osp.join(pyconfigdir, "PostgresCredentials.cfg")
     parser = cp.SafeConfigParser()
     parser.read(cfglocation)
-    return parser    
+    return parser
 
 def getcredentials(parser, section="ADMIN"):
     user = parser.get(section, "user")
