@@ -113,7 +113,7 @@ END
 $BODY$
 LANGUAGE PLPGSQL;
 COMMENT ON FUNCTION staging."Convert_Weather_DateTime"(character varying(500))
-	IS 'Converts from text treating midnight as 24:00 in previous day, to standard timestamp treating it as 00:00 the next.';
+IS 'Converts from text treating midnight as 24:00 in previous day, to standard timestamp treating it as 00:00 the next.';
 
 -- Unit test for date conversion
 WITH CTE_Setup ("Input Value", "Expected Output")
@@ -143,21 +143,37 @@ WHERE	"Test Result" = '!!! FAILURE !!!';
 
 CREATE OR REPLACE VIEW staging."JCMB_Weather_Staging_Conversions"
 AS
-	SELECT	
-		DISTINCT	-- to remove fully duplicated data
-		date_time_text_source
-		,staging."Convert_Weather_DateTime"(date_time_text_source)	AS date_time
-		,CAST(atmospheric_pressure_mbar AS integer)			AS atmospheric_pressure_mbar
-		,CAST(rainfall_mm AS numeric(15,3))				AS rainfall_mm
-		,CAST(wind_speed_m_per_s AS numeric(15,3))			AS wind_speed_m_per_s
-		,CAST(wind_direction_degrees AS numeric(15,3))			AS wind_direction_degrees
-		,CAST(surface_temperature_c AS numeric(15,3))			AS surface_temperature_c
-		,CAST(relative_humidity_percentage AS numeric(15,3))		AS relative_humidity_percentage
-		,CAST(solar_flux_kw_per_m2 AS numeric(15,3))			AS solar_flux_kw_per_m2
-		,CAST(battery_v AS numeric(15,3))				AS battery_v
-	FROM 	staging."JCMB_Weather_Staging"
-	WHERE	atmospheric_pressure_mbar >= 0;	-- Exclude negative values - there is at least one within the duplicates checked, which looks like bad data
-COMMENT ON VIEW staging."JCMB_Weather_Staging_Conversions" IS 'Handle type conversions in a single place to aid clean upsert in proc.  Also removes duplicates in source data.';
+	SELECT	date_time_text_source
+		,date_time
+		,atmospheric_pressure_mbar
+		,rainfall_mm
+		,wind_speed_m_per_s
+		,wind_direction_degrees
+		,surface_temperature_c
+		,relative_humidity_percentage
+		,solar_flux_kw_per_m2
+		,battery_v
+	FROM	(
+		SELECT	date_time_text_source
+			,staging."Convert_Weather_DateTime"(date_time_text_source)	AS date_time
+			,CAST(atmospheric_pressure_mbar AS integer)			AS atmospheric_pressure_mbar
+			,CAST(rainfall_mm AS numeric(15,3))				AS rainfall_mm
+			,CAST(wind_speed_m_per_s AS numeric(15,3))			AS wind_speed_m_per_s
+			,CAST(wind_direction_degrees AS numeric(15,3))			AS wind_direction_degrees
+			,CAST(surface_temperature_c AS numeric(15,3))			AS surface_temperature_c
+			,CAST(relative_humidity_percentage AS numeric(15,3))		AS relative_humidity_percentage
+			,CAST(solar_flux_kw_per_m2 AS numeric(15,3))			AS solar_flux_kw_per_m2
+			,CAST(battery_v AS numeric(15,3))				AS battery_v
+			,ROW_NUMBER() OVER
+				(
+				PARTITION BY date_time_text_source
+				ORDER BY CASE WHEN atmospheric_pressure_mbar LIKE '-%' THEN 1 ELSE 0 END, staged_row_id
+				) AS LoadRanking
+		FROM 	staging."JCMB_Weather_Staging"
+		) AS ConvertAndRank
+	WHERE	LoadRanking = 1;
+COMMENT ON VIEW staging."JCMB_Weather_Staging_Conversions"
+IS 'Handle type conversions in a single place to aid clean upsert in proc.  Also removes duplicates in source data.';
 
 
 CREATE OR REPLACE FUNCTION staging."Upsert_Weather_Data"()
@@ -208,6 +224,8 @@ BEGIN
 		LEFT OUTER JOIN public."JCMB_Weather_Data" AS d
 		ON s.date_time_text_source = d.date_time_text_source
 	WHERE	d.date_time_text_source IS NULL;
+
+	RETURN 0;
 
 END
 $BODY$
