@@ -1,13 +1,17 @@
 ﻿
 CREATE SCHEMA IF NOT EXISTS staging AUTHORIZATION postgres;
 
-DROP TABLE IF EXISTS staging."JCMB_Weather_Loads";
+
+DROP TABLE IF EXISTS staging."JCMB_Weather_Loads" CASCADE;
 CREATE TABLE staging."JCMB_Weather_Loads"
 	(
 	"load_id"		serial,
 	"load_timestamp"	timestamp without time zone NOT NULL
 	)
 WITH (OIDS=FALSE);
+ALTER TABLE staging."JCMB_Weather_Loads" OWNER TO postgres;
+ALTER TABLE staging."JCMB_Weather_Loads" ADD CONSTRAINT PK_JCMB_Weather_Loads PRIMARY KEY ("load_id");
+
 
 CREATE OR REPLACE FUNCTION staging."AssignAndGetNewLoadID"()
 RETURNS integer
@@ -15,10 +19,39 @@ AS
 'INSERT INTO staging."JCMB_Weather_Loads"("load_timestamp") VALUES (clock_timestamp()) RETURNING load_id;'
 LANGUAGE SQL;
 
+
+DROP TABLE IF EXISTS staging."LoadFile_Statuses";
+CREATE TABLE staging."LoadFile_Statuses"
+	(
+	"LoadFileStatusID"		integer,
+	"LoadFileStatusDescription"	character varying(500)
+	);
+ALTER TABLE staging."LoadFile_Statuses" OWNER TO postgres;
+ALTER TABLE staging."LoadFile_Statuses" ADD CONSTRAINT PK_LoadFile_Statuses PRIMARY KEY ("LoadFileStatusID");
+
+INSERT INTO staging."LoadFile_Statuses" ("LoadFileStatusID", "LoadFileStatusDescription")
+VALUES	(0, 'Registered, not processed'),
+	(1, 'Staged'),
+	(2, 'Loaded');
+
+
+DROP TABLE IF EXISTS staging."JCMB_Weather_LoadFiles";
+CREATE TABLE staging."JCMB_Weather_LoadFiles"
+	(
+	"file_id"		serial,
+	"load_id"		integer,
+	"load_timestamp"	timestamp without time zone NOT NULL
+	)
+WITH (OIDS=FALSE);
+ALTER TABLE staging."JCMB_Weather_LoadFiles" OWNER TO postgres;
+ALTER TABLE staging."JCMB_Weather_LoadFiles" ADD CONSTRAINT PK_JCMB_Weather_LoadFiles PRIMARY KEY("file_id");
+ALTER TABLE staging."JCMB_Weather_LoadFiles" ADD CONSTRAINT FK_JCMB_Weather_LoadFiles__LoadID FOREIGN KEY("load_id")
+	REFERENCES staging."JCMB_Weather_Loads"("load_id");
+
 DROP TABLE IF EXISTS staging."JCMB_Weather_Staging" CASCADE;
 CREATE TABLE staging."JCMB_Weather_Staging"
     (
-    "etl_id"				serial,
+    "staged_row_id"				serial,
     "date_time"                         character varying (500),
     "atmospheric_pressure_mbar"         character varying (500),
     "rainfall_mm"                       character varying (500),
@@ -31,7 +64,7 @@ CREATE TABLE staging."JCMB_Weather_Staging"
     )
 WITH (OIDS=FALSE);
 ALTER TABLE staging."JCMB_Weather_Staging" OWNER TO postgres;
-ALTER TABLE staging."JCMB_Weather_Staging" ADD CONSTRAINT "PK_JCMB_Weather_Staging" PRIMARY KEY ("etl_id");
+ALTER TABLE staging."JCMB_Weather_Staging" ADD CONSTRAINT "PK_JCMB_Weather_Staging" PRIMARY KEY ("staged_row_id");
 
 
 CREATE OR REPLACE VIEW staging."JCMB_Weather_Staging_Summary"
@@ -58,3 +91,4 @@ CREATE TABLE "JCMB_Weather_Data"
     );
 ALTER TABLE "public"."JCMB_Weather_Data"  OWNER TO postgres;
 ALTER TABLE "public"."JCMB_Weather_Data" ADD CONSTRAINT PK_JCMB_Weather_Data PRIMARY KEY ("date_time");
+
