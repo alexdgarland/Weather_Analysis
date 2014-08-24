@@ -16,4 +16,4 @@ ORDER BY s.date_time_text_source;
 -- One duplicate has a negative figure for atmospheric pressure - see if there are any others
 SELECT	*
 FROM 	staging."JCMB_Weather_Staging"
-	WHERE	CAST(atmospheric_pressure_mbar AS numeric(15,3)) >= 0;	
+	WHERE	CAST(atmospheric_pressure_mbar AS numeric(15,3)) < 0;	
