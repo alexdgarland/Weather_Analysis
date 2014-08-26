@@ -83,7 +83,6 @@ COMMENT ON VIEW staging."JCMB_Weather_Staging_Summary" IS 'Summary view for manu
 DROP TABLE IF EXISTS public."JCMB_Weather_Data";
 CREATE TABLE public."JCMB_Weather_Data"
     (
-    "date_time_text_source"             character varying (500),
     "date_time"				timestamp without time zone 	NOT NULL,
     "atmospheric_pressure_mbar"         integer                     	NOT NULL,
     "rainfall_mm"                       numeric(15,3)			NOT NULL,
@@ -96,7 +95,6 @@ CREATE TABLE public."JCMB_Weather_Data"
     );
 ALTER TABLE public."JCMB_Weather_Data"  OWNER TO postgres;
 ALTER TABLE public."JCMB_Weather_Data" ADD CONSTRAINT PK_JCMB_Weather_Data PRIMARY KEY ("date_time");
-ALTER TABLE public."JCMB_Weather_Data" ADD CONSTRAINT UNQ_JCMB_Weather_Data_date_time_text_source UNIQUE("date_time");
 
 
 CREATE OR REPLACE FUNCTION staging."Convert_Weather_DateTime"(date_time character varying(500))
@@ -143,8 +141,7 @@ WHERE	"Test Result" = '!!! FAILURE !!!';
 
 CREATE OR REPLACE VIEW staging."JCMB_Weather_Staging_Conversions"
 AS
-	SELECT	date_time_text_source
-		,date_time
+	SELECT	date_time
 		,atmospheric_pressure_mbar
 		,rainfall_mm
 		,wind_speed_m_per_s
@@ -154,8 +151,7 @@ AS
 		,solar_flux_kw_per_m2
 		,battery_v
 	FROM	(
-		SELECT	date_time_text_source
-			,staging."Convert_Weather_DateTime"(date_time_text_source)	AS date_time
+		SELECT	staging."Convert_Weather_DateTime"(date_time_text_source)	AS date_time
 			,CAST(atmospheric_pressure_mbar AS integer)			AS atmospheric_pressure_mbar
 			,CAST(rainfall_mm AS numeric(15,3))				AS rainfall_mm
 			,CAST(wind_speed_m_per_s AS numeric(15,3))			AS wind_speed_m_per_s
@@ -166,7 +162,7 @@ AS
 			,CAST(battery_v AS numeric(15,3))				AS battery_v
 			,ROW_NUMBER() OVER
 				(
-				PARTITION BY date_time_text_source
+				PARTITION BY staging."Convert_Weather_DateTime"(date_time_text_source)
 				ORDER BY CASE WHEN atmospheric_pressure_mbar LIKE '-%' THEN 1 ELSE 0 END, staged_row_id
 				) AS LoadRanking
 		FROM 	staging."JCMB_Weather_Staging"
@@ -194,13 +190,12 @@ BEGIN
 		,solar_flux_kw_per_m2		= s.solar_flux_kw_per_m2
 		,battery_v			= s.battery_v
 	FROM	staging."JCMB_Weather_Staging_Conversions" AS s
-	WHERE	s.date_time_text_source = d.date_time_text_source;
+	WHERE	s.date_time = d.date_time;
 
 	-- 2) Insert any new records using anti-semi-join
 	INSERT INTO public."JCMB_Weather_Data"
 		(
-		date_time_text_source
-		,date_time
+		date_time
 		,atmospheric_pressure_mbar
 		,rainfall_mm
 		,wind_speed_m_per_s
@@ -210,8 +205,7 @@ BEGIN
 		,solar_flux_kw_per_m2
 		,battery_v
 		)
-	SELECT	s.date_time_text_source
-		,s.date_time
+	SELECT	s.date_time
 		,s.atmospheric_pressure_mbar
 		,s.rainfall_mm
 		,s.wind_speed_m_per_s
@@ -222,8 +216,8 @@ BEGIN
 		,s.battery_v
 	FROM	staging."JCMB_Weather_Staging_Conversions" AS s
 		LEFT OUTER JOIN public."JCMB_Weather_Data" AS d
-		ON s.date_time_text_source = d.date_time_text_source
-	WHERE	d.date_time_text_source IS NULL;
+		ON s.date_time = d.date_time
+	WHERE	d.date_time IS NULL;
 
 	RETURN 0;
 
