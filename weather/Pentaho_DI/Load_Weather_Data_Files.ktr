@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>Pentaho DI Transformation - Weather Data</name>
+    <name>Load Weather Data Files</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -76,7 +76,7 @@
       <note>NB&#x3a; When opening this transformtion each time, you will need to manually set the &#x22;user.WeatherDataFolder&#x22; variable&#xd;&#xa;&#x28;menu Edit &#x3e;&#x3e; Set Environment Variables&#x29;.&#xd;&#xa;&#xd;&#xa;If you don&#x27;t do this, the transformation will report success but will not actually find or process any files&#x21;&#xd;&#xa;&#xd;&#xa;I plan to to improve this as part of embedding the transformation within a job that handles error handling, logging etc. in future.</note>
       <xloc>324</xloc>
       <yloc>133</yloc>
-      <width>685</width>
+      <width>814</width>
       <heigth>104</heigth>
       <fontname>Segoe UI</fontname>
       <fontsize>9</fontsize>
@@ -96,13 +96,13 @@
   </notepads>
   <connection>
     <name>Postgres</name>
-    <server>localhost</server>
+    <server>&#x24;&#x7b;WEATHERDBHOST&#x7d;</server>
     <type>POSTGRESQL</type>
     <access>Native</access>
-    <database>AG_Test</database>
-    <port>5432</port>
-    <username>postgres</username>
-    <password>Encrypted 2be98afa109c69c90b91ca375d390aac8</password>
+    <database>&#x24;&#x7b;WEATHERDBNAME&#x7d;</database>
+    <port>&#x24;&#x7b;WEATHERDBPORT&#x7d;</port>
+    <username>&#x24;&#x7b;WEATHERDBUSER&#x7d;</username>
+    <password>&#x24;&#x7b;WEATHERDBPASSWORD&#x7d;</password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
@@ -110,7 +110,7 @@
       <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
       <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
       <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>5432</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>&#x24;&#x7b;WEATHERDBPORT&#x7d;</attribute></attribute>
       <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
       <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
       <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
