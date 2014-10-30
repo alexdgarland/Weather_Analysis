@@ -1,12 +1,15 @@
 ﻿
 CREATE SCHEMA IF NOT EXISTS staging AUTHORIZATION postgres;
 
-
 DROP TABLE IF EXISTS staging."JCMB_Weather_Loads" CASCADE;
+DROP TYPE IF EXISTS load_state;
+CREATE TYPE load_state AS ENUM ('started', 'completed okay', 'failed');
 CREATE TABLE staging."JCMB_Weather_Loads"
 	(
 	"load_id"		serial,
-	"load_timestamp"	timestamp without time zone NOT NULL
+	"load_start_timestamp"	timestamp without time zone NOT NULL,
+	"load_latest_state"	load_state NOT NULL DEFAULT 'started',
+	"load_end_timestamp"	timestamp without time zone
 	)
 WITH (OIDS=FALSE);
 ALTER TABLE staging."JCMB_Weather_Loads" OWNER TO postgres;
@@ -16,33 +19,20 @@ ALTER TABLE staging."JCMB_Weather_Loads" ADD CONSTRAINT PK_JCMB_Weather_Loads PR
 CREATE OR REPLACE FUNCTION staging."AssignAndGetNewLoadID"()
 RETURNS integer
 AS
-'INSERT INTO staging."JCMB_Weather_Loads"("load_timestamp") VALUES (clock_timestamp()) RETURNING load_id;'
+'INSERT INTO staging."JCMB_Weather_Loads"("load_start_timestamp") VALUES (clock_timestamp()) RETURNING load_id;'
 LANGUAGE SQL;
 
-
-/* May make use of load statuses as part of more sophisticated logging, error handling etc. in future - comment out for now.*/
-DROP TABLE IF EXISTS staging."LoadFile_Statuses";
--- CREATE TABLE staging."LoadFile_Statuses"
--- 	(
--- 	"LoadFileStatusID"		integer,
--- 	"LoadFileStatusDescription"	character varying(500)
--- 	);
--- ALTER TABLE staging."LoadFile_Statuses" OWNER TO postgres;
--- ALTER TABLE staging."LoadFile_Statuses" ADD CONSTRAINT PK_LoadFile_Statuses PRIMARY KEY ("LoadFileStatusID");
--- 
--- INSERT INTO staging."LoadFile_Statuses" ("LoadFileStatusID", "LoadFileStatusDescription")
--- VALUES	(0, 'Registered, not processed'),
--- 	(1, 'Staged'),
--- 	(2, 'Loaded');
-
-
 DROP TABLE IF EXISTS staging."JCMB_Weather_LoadFiles";
+DROP TYPE IF EXISTS file_state;
+CREATE TYPE file_state AS ENUM ('registered', 'staged', 'loaded');
 CREATE TABLE staging."JCMB_Weather_LoadFiles"
 	(
-	"file_id"		serial,
-	"file_name"		character varying(1000),
-	"load_id"		integer,
-	"file_load_timestamp"	timestamp without time zone NOT NULL DEFAULT clock_timestamp()
+	"file_id"			serial NOT NULL,
+	"file_name"			character varying(1000) NOT NULL,
+	"load_id"			integer NOT NULL,
+	"file_registered_timestamp"	timestamp without time zone NOT NULL DEFAULT clock_timestamp(),
+	"file_latest_state"		file_state NOT NULL DEFAULT 'registered',		
+	"file_load_complete_timestamp"	timestamp without time zone
 	)
 WITH (OIDS=FALSE);
 ALTER TABLE staging."JCMB_Weather_LoadFiles" OWNER TO postgres;
