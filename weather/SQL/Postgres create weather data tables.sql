@@ -24,7 +24,7 @@ LANGUAGE SQL;
 
 DROP TABLE IF EXISTS staging."JCMB_Weather_LoadFiles";
 DROP TYPE IF EXISTS file_state;
-CREATE TYPE file_state AS ENUM ('registered', 'staged', 'loaded');
+CREATE TYPE file_state AS ENUM ('registered', 'staging started', 'staging complete', 'loaded');
 CREATE TABLE staging."JCMB_Weather_LoadFiles"
 	(
 	"file_id"			serial NOT NULL,
