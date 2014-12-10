@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>Load Weather Data Files</name>
+    <name>Load Single File To Staging</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -9,6 +9,16 @@
     <trans_status>0</trans_status>
     <directory>&#x2f;</directory>
     <parameters>
+        <parameter>
+            <name>file_id</name>
+            <default_value/>
+            <description/>
+        </parameter>
+        <parameter>
+            <name>file_name</name>
+            <default_value/>
+            <description/>
+        </parameter>
     </parameters>
     <log>
 <trans-log-table><connection/>
@@ -67,35 +77,14 @@
     <clusterschemas>
     </clusterschemas>
   <created_user>-</created_user>
-  <created_date>2014&#x2f;08&#x2f;22 22&#x3a;13&#x3a;48.842</created_date>
+  <created_date>2014&#x2f;10&#x2f;30 20&#x3a;07&#x3a;47.213</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2014&#x2f;08&#x2f;22 22&#x3a;13&#x3a;48.842</modified_date>
+  <modified_date>2014&#x2f;10&#x2f;30 20&#x3a;07&#x3a;47.213</modified_date>
   </info>
   <notepads>
-    <notepad>
-      <note>NB&#x3a; When opening this transformtion each time, you will need to manually set the &#x22;user.WeatherDataFolder&#x22; variable&#xd;&#xa;&#x28;menu Edit &#x3e;&#x3e; Set Environment Variables&#x29;.&#xd;&#xa;&#xd;&#xa;If you don&#x27;t do this, the transformation will report success but will not actually find or process any files&#x21;&#xd;&#xa;&#xd;&#xa;I plan to to improve this as part of embedding the transformation within a job that handles error handling, logging etc. in future.</note>
-      <xloc>324</xloc>
-      <yloc>133</yloc>
-      <width>814</width>
-      <heigth>104</heigth>
-      <fontname>Segoe UI</fontname>
-      <fontsize>9</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>0</fontcolorred>
-      <fontcolorgreen>0</fontcolorgreen>
-      <fontcolorblue>0</fontcolorblue>
-      <backgroundcolorred>255</backgroundcolorred>
-      <backgroundcolorgreen>205</backgroundcolorgreen>
-      <backgroundcolorblue>112</backgroundcolorblue>
-      <bordercolorred>100</bordercolorred>
-      <bordercolorgreen>100</bordercolorgreen>
-      <bordercolorblue>100</bordercolorblue>
-      <drawshadow>Y</drawshadow>
-    </notepad>
   </notepads>
   <connection>
-    <name>Postgres</name>
+    <name>WeatherAnalysis DB</name>
     <server>&#x24;&#x7b;WEATHERDBHOST&#x7d;</server>
     <type>POSTGRESQL</type>
     <access>Native</access>
@@ -119,53 +108,13 @@
     </attributes>
   </connection>
   <order>
-  <hop> <from>Read CSV Files</from><to>Write to Staging Table</to><enabled>Y</enabled> </hop>
-  <hop> <from>Get File Names</from><to>Read CSV Files</to><enabled>Y</enabled> </hop>
-  <hop> <from>Get File Names</from><to>Map Load ID to File Names</to><enabled>N</enabled> </hop>
-  <hop> <from>Map Load ID to File Names</from><to>Log File Name to Db</to><enabled>Y</enabled> </hop>
+  <hop> <from>Get File ID Parameter</from><to>Join Rows &#x28;cartesian product&#x29;</to><enabled>Y</enabled> </hop>
+  <hop> <from>Read From Files</from><to>Join Rows &#x28;cartesian product&#x29;</to><enabled>Y</enabled> </hop>
+  <hop> <from>Join Rows &#x28;cartesian product&#x29;</from><to>Write to Staging Table</to><enabled>Y</enabled> </hop>
   </order>
   <step>
-    <name>Get File Names</name>
-    <type>GetFileNames</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <filter>
-      <filterfiletype>all_files</filterfiletype>
-    </filter>
-    <doNotFailIfNoFile>N</doNotFailIfNoFile>
-    <rownum>N</rownum>
-    <isaddresult>Y</isaddresult>
-    <filefield>N</filefield>
-    <rownum_field/>
-    <filename_Field/>
-    <wildcard_Field/>
-    <exclude_wildcard_Field/>
-    <dynamic_include_subfolders>N</dynamic_include_subfolders>
-    <limit>0</limit>
-    <file>
-      <name>&#x24;&#x7b;user.WeatherDataFolder&#x7d;</name>
-      <filemask>JCMB_&#x5b;0-9&#x5d;&#x7b;4&#x7d;&#x5c;.csv</filemask>
-      <exclude_filemask/>
-      <file_required>N</file_required>
-      <include_subfolders>N</include_subfolders>
-    </file>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>196</xloc>
-      <yloc>33</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Log File Name to Db</name>
-    <type>TableOutput</type>
+    <name>Get File ID Parameter</name>
+    <type>GetVariable</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -174,43 +123,30 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>Postgres</connection>
-    <schema>staging</schema>
-    <table>&#x22;JCMB_Weather_LoadFiles&#x22;</table>
-    <commit>1000</commit>
-    <truncate>N</truncate>
-    <ignore_errors>N</ignore_errors>
-    <use_batch>Y</use_batch>
-    <specify_fields>Y</specify_fields>
-    <partitioning_enabled>N</partitioning_enabled>
-    <partitioning_field/>
-    <partitioning_daily>N</partitioning_daily>
-    <partitioning_monthly>Y</partitioning_monthly>
-    <tablename_in_field>N</tablename_in_field>
-    <tablename_field/>
-    <tablename_in_table>Y</tablename_in_table>
-    <return_keys>N</return_keys>
-    <return_field/>
     <fields>
-        <field>
-          <column_name>file_name</column_name>
-          <stream_name>short_filename</stream_name>
-        </field>
-        <field>
-          <column_name>load_id</column_name>
-          <stream_name>load_id</stream_name>
-        </field>
+      <field>
+        <name>file_id</name>
+        <variable>&#x24;&#x7b;file_id&#x7d;</variable>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>197</xloc>
-      <yloc>269</yloc>
+      <xloc>254</xloc>
+      <yloc>199</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
 
   <step>
-    <name>Map Load ID to File Names</name>
+    <name>Join Rows &#x28;cartesian product&#x29;</name>
     <type>JoinRows</type>
     <description/>
     <distribute>Y</distribute>
@@ -234,141 +170,226 @@
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>197</xloc>
-      <yloc>148</yloc>
+      <xloc>427</xloc>
+      <yloc>72</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
 
   <step>
-    <name>Read CSV Files</name>
-    <type>CsvInput</type>
+    <name>Read From Files</name>
+    <type>TextFileInput</type>
     <description/>
-    <distribute>N</distribute>
+    <distribute>Y</distribute>
     <custom_distribution/>
     <copies>1</copies>
          <partitioning>
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <filename>C&#x3a;&#x5c;Users&#x5c;alex__000&#x5c;Downloads&#x5c;JCMB_2014.csv</filename>
-    <filename_field>filename</filename_field>
-    <rownum_field/>
-    <include_filename>Y</include_filename>
+    <accept_filenames>N</accept_filenames>
+    <passing_through_fields>N</passing_through_fields>
+    <accept_field>full_file_path</accept_field>
+    <accept_stepname/>
     <separator>,</separator>
     <enclosure>&#x22;</enclosure>
+    <enclosure_breaks>N</enclosure_breaks>
+    <escapechar/>
     <header>Y</header>
-    <buffer_size>50000</buffer_size>
-    <lazy_conversion>Y</lazy_conversion>
-    <add_filename_result>N</add_filename_result>
-    <parallel>N</parallel>
-    <newline_possible>N</newline_possible>
-    <encoding>windows-1252</encoding>
+    <nr_headerlines>1</nr_headerlines>
+    <footer>N</footer>
+    <nr_footerlines>1</nr_footerlines>
+    <line_wrapped>N</line_wrapped>
+    <nr_wraps>1</nr_wraps>
+    <layout_paged>N</layout_paged>
+    <nr_lines_per_page>80</nr_lines_per_page>
+    <nr_lines_doc_header>0</nr_lines_doc_header>
+    <noempty>Y</noempty>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <rownumByFile>N</rownumByFile>
+    <rownum_field/>
+    <format>DOS</format>
+    <encoding/>
+    <add_to_result_filenames>Y</add_to_result_filenames>
+    <file>
+      <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;..&#x2f;..&#x2f;data&#x2f;&#x24;&#x7b;file_name&#x7d;</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+      <type>CSV</type>
+      <compression>None</compression>
+    </file>
+    <filters>
+    </filters>
     <fields>
       <field>
-        <name>date-time</name>
+        <name>date_time</name>
         <type>String</type>
-        <format/>
+        <format>yyyy&#x2f;MM&#x2f;dd</format>
         <currency>&#xa3;</currency>
         <decimal>.</decimal>
         <group>,</group>
-        <length>500</length>
+        <nullif>-</nullif>
+        <ifnull/>
+        <position>-1</position>
+        <length>-1</length>
         <precision>-1</precision>
         <trim_type>none</trim_type>
+        <repeat>N</repeat>
       </field>
       <field>
-        <name>atmospheric pressure &#x28;mBar&#x29;</name>
+        <name>atmospheric_pressure_&#x28;mBar&#x29;</name>
         <type>String</type>
-        <format/>
+        <format>&#x23;</format>
         <currency>&#xa3;</currency>
         <decimal>.</decimal>
         <group>,</group>
-        <length>500</length>
-        <precision>-1</precision>
+        <nullif>-</nullif>
+        <ifnull/>
+        <position>-1</position>
+        <length>15</length>
+        <precision>0</precision>
         <trim_type>none</trim_type>
+        <repeat>N</repeat>
       </field>
       <field>
-        <name>rainfall &#x28;mm&#x29;</name>
+        <name>rainfall_&#x28;mm&#x29;</name>
         <type>String</type>
-        <format/>
+        <format>&#x23;</format>
         <currency>&#xa3;</currency>
         <decimal>.</decimal>
         <group>,</group>
-        <length>500</length>
-        <precision>-1</precision>
+        <nullif>-</nullif>
+        <ifnull/>
+        <position>-1</position>
+        <length>15</length>
+        <precision>0</precision>
         <trim_type>none</trim_type>
+        <repeat>N</repeat>
       </field>
       <field>
-        <name>wind speed &#x28;m&#x2f;s&#x29;</name>
+        <name>wind_speed_&#x28;m&#x2f;s&#x29;</name>
         <type>String</type>
-        <format/>
+        <format>&#x23;.&#x23;</format>
         <currency>&#xa3;</currency>
         <decimal>.</decimal>
         <group>,</group>
-        <length>500</length>
-        <precision>-1</precision>
+        <nullif>-</nullif>
+        <ifnull/>
+        <position>-1</position>
+        <length>15</length>
+        <precision>3</precision>
         <trim_type>none</trim_type>
+        <repeat>N</repeat>
       </field>
       <field>
-        <name>wind direction &#x28;degrees&#x29;</name>
+        <name>wind_direction_&#x28;degrees&#x29;</name>
         <type>String</type>
-        <format/>
+        <format>&#x23;.&#x23;</format>
         <currency>&#xa3;</currency>
         <decimal>.</decimal>
         <group>,</group>
-        <length>500</length>
-        <precision>-1</precision>
+        <nullif>-</nullif>
+        <ifnull/>
+        <position>-1</position>
+        <length>15</length>
+        <precision>1</precision>
         <trim_type>none</trim_type>
+        <repeat>N</repeat>
       </field>
       <field>
-        <name>surface temperature &#x28;C&#x29;</name>
+        <name>surface_temperature_&#x28;C&#x29;</name>
         <type>String</type>
-        <format/>
+        <format>&#x23;.&#x23;</format>
         <currency>&#xa3;</currency>
         <decimal>.</decimal>
         <group>,</group>
-        <length>500</length>
-        <precision>-1</precision>
+        <nullif>-</nullif>
+        <ifnull/>
+        <position>-1</position>
+        <length>15</length>
+        <precision>3</precision>
         <trim_type>none</trim_type>
+        <repeat>N</repeat>
       </field>
       <field>
-        <name>relative humidity &#x28;&#x25;&#x29;</name>
+        <name>relative_humidity_&#x28;&#x25;&#x29;</name>
         <type>String</type>
-        <format/>
+        <format>&#x23;.&#x23;</format>
         <currency>&#xa3;</currency>
         <decimal>.</decimal>
         <group>,</group>
-        <length>500</length>
-        <precision>-1</precision>
+        <nullif>-</nullif>
+        <ifnull/>
+        <position>-1</position>
+        <length>15</length>
+        <precision>1</precision>
         <trim_type>none</trim_type>
+        <repeat>N</repeat>
       </field>
       <field>
-        <name>solar flux &#x28;Kw&#x2f;m2&#x29;</name>
+        <name>solar_flux_&#x28;Kw&#x2f;m2&#x29;</name>
         <type>String</type>
-        <format/>
+        <format>&#x23;</format>
         <currency>&#xa3;</currency>
         <decimal>.</decimal>
         <group>,</group>
-        <length>500</length>
-        <precision>-1</precision>
+        <nullif>-</nullif>
+        <ifnull/>
+        <position>-1</position>
+        <length>15</length>
+        <precision>0</precision>
         <trim_type>none</trim_type>
+        <repeat>N</repeat>
       </field>
       <field>
-        <name>battery &#x28;V&#x29;</name>
+        <name>battery_&#x28;V&#x29;</name>
         <type>String</type>
-        <format/>
+        <format>&#x23;.&#x23;</format>
         <currency>&#xa3;</currency>
         <decimal>.</decimal>
         <group>,</group>
-        <length>500</length>
-        <precision>-1</precision>
+        <nullif>-</nullif>
+        <ifnull/>
+        <position>-1</position>
+        <length>15</length>
+        <precision>2</precision>
         <trim_type>none</trim_type>
+        <repeat>N</repeat>
       </field>
     </fields>
+    <limit>0</limit>
+    <error_ignored>N</error_ignored>
+    <skip_bad_files>N</skip_bad_files>
+    <file_error_field/>
+    <file_error_message_field/>
+    <error_line_skipped>N</error_line_skipped>
+    <error_count_field/>
+    <error_fields_field/>
+    <error_text_field/>
+    <bad_line_files_destination_directory/>
+    <bad_line_files_extension>warning</bad_line_files_extension>
+    <error_line_files_destination_directory/>
+    <error_line_files_extension>error</error_line_files_extension>
+    <line_number_files_destination_directory/>
+    <line_number_files_extension>line</line_number_files_extension>
+    <date_format_lenient>Y</date_format_lenient>
+    <date_format_locale>en_GB</date_format_locale>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>363</xloc>
-      <yloc>34</yloc>
+      <xloc>250</xloc>
+      <yloc>72</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -384,7 +405,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>Postgres</connection>
+    <connection>WeatherAnalysis DB</connection>
     <schema>staging</schema>
     <table>&#x22;JCMB_Weather_Staging&#x22;</table>
     <commit>1000</commit>
@@ -404,45 +425,49 @@
     <fields>
         <field>
           <column_name>date_time_text_source</column_name>
-          <stream_name>date-time</stream_name>
+          <stream_name>date_time</stream_name>
         </field>
         <field>
           <column_name>atmospheric_pressure_mbar</column_name>
-          <stream_name>atmospheric pressure &#x28;mBar&#x29;</stream_name>
+          <stream_name>atmospheric_pressure_&#x28;mBar&#x29;</stream_name>
         </field>
         <field>
           <column_name>rainfall_mm</column_name>
-          <stream_name>rainfall &#x28;mm&#x29;</stream_name>
+          <stream_name>rainfall_&#x28;mm&#x29;</stream_name>
         </field>
         <field>
           <column_name>wind_speed_m_per_s</column_name>
-          <stream_name>wind speed &#x28;m&#x2f;s&#x29;</stream_name>
+          <stream_name>wind_speed_&#x28;m&#x2f;s&#x29;</stream_name>
         </field>
         <field>
           <column_name>wind_direction_degrees</column_name>
-          <stream_name>wind direction &#x28;degrees&#x29;</stream_name>
+          <stream_name>wind_direction_&#x28;degrees&#x29;</stream_name>
         </field>
         <field>
           <column_name>surface_temperature_c</column_name>
-          <stream_name>surface temperature &#x28;C&#x29;</stream_name>
+          <stream_name>surface_temperature_&#x28;C&#x29;</stream_name>
         </field>
         <field>
           <column_name>relative_humidity_percentage</column_name>
-          <stream_name>relative humidity &#x28;&#x25;&#x29;</stream_name>
+          <stream_name>relative_humidity_&#x28;&#x25;&#x29;</stream_name>
         </field>
         <field>
           <column_name>solar_flux_kw_per_m2</column_name>
-          <stream_name>solar flux &#x28;Kw&#x2f;m2&#x29;</stream_name>
+          <stream_name>solar_flux_&#x28;Kw&#x2f;m2&#x29;</stream_name>
         </field>
         <field>
           <column_name>battery_v</column_name>
-          <stream_name>battery &#x28;V&#x29;</stream_name>
+          <stream_name>battery_&#x28;V&#x29;</stream_name>
+        </field>
+        <field>
+          <column_name>file_id</column_name>
+          <stream_name>file_id</stream_name>
         </field>
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>529</xloc>
-      <yloc>34</yloc>
+      <xloc>604</xloc>
+      <yloc>72</yloc>
       <draw>Y</draw>
       </GUI>
     </step>

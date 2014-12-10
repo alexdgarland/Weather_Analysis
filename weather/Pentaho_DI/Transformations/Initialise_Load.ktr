@@ -98,7 +98,7 @@
     </attributes>
   </connection>
   <order>
-  <hop> <from>Call SQL Function &#x22;AssignAndGetNewLoadID&#x22;</from><to>Write to load_id variable</to><enabled>Y</enabled> </hop>
+  <hop> <from>Call SQL Function &#x22;AssignAndGetNewLoadID&#x22;</from><to>Set load_id variable</to><enabled>Y</enabled> </hop>
   <hop> <from>Call SQL Function &#x22;AssignAndGetNewLoadID&#x22;</from><to>Join Rows &#x28;cartesian product&#x29;</to><enabled>Y</enabled> </hop>
   <hop> <from>Get File Names</from><to>Join Rows &#x28;cartesian product&#x29;</to><enabled>Y</enabled> </hop>
   <hop> <from>Join Rows &#x28;cartesian product&#x29;</from><to>Log File Names to Db</to><enabled>Y</enabled> </hop>
@@ -193,8 +193,8 @@
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>596</xloc>
-      <yloc>209</yloc>
+      <xloc>407</xloc>
+      <yloc>211</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -239,14 +239,14 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>793</xloc>
-      <yloc>209</yloc>
+      <xloc>604</xloc>
+      <yloc>211</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
 
   <step>
-    <name>Write to load_id variable</name>
+    <name>Set load_id variable</name>
     <type>SetVariable</type>
     <description/>
     <distribute>Y</distribute>
@@ -267,8 +267,8 @@
     <use_formatting>Y</use_formatting>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>596</xloc>
-      <yloc>34</yloc>
+      <xloc>372</xloc>
+      <yloc>15</yloc>
       <draw>Y</draw>
       </GUI>
     </step>

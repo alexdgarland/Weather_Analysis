@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>Read back file names with IDs</name>
+    <name>Set Load State</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -9,6 +9,16 @@
     <trans_status>0</trans_status>
     <directory>&#x2f;</directory>
     <parameters>
+        <parameter>
+            <name>load_id_to_use</name>
+            <default_value/>
+            <description/>
+        </parameter>
+        <parameter>
+            <name>load_state_to_set</name>
+            <default_value/>
+            <description/>
+        </parameter>
     </parameters>
     <log>
 <trans-log-table><connection/>
@@ -67,9 +77,9 @@
     <clusterschemas>
     </clusterschemas>
   <created_user>-</created_user>
-  <created_date>2014&#x2f;10&#x2f;30 20&#x3a;07&#x3a;47.213</created_date>
+  <created_date>2014&#x2f;12&#x2f;10 15&#x3a;34&#x3a;04.602</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2014&#x2f;10&#x2f;30 20&#x3a;07&#x3a;47.213</modified_date>
+  <modified_date>2014&#x2f;12&#x2f;10 15&#x3a;34&#x3a;04.602</modified_date>
   </info>
   <notepads>
   </notepads>
@@ -98,11 +108,11 @@
     </attributes>
   </connection>
   <order>
-  <hop> <from>Retrieve Load ID</from><to>Read back files and IDs for current load</to><enabled>Y</enabled> </hop>
+  <hop> <from>Retrieve Parameters</from><to>Execute SQL script</to><enabled>Y</enabled> </hop>
   </order>
   <step>
-    <name>Read back files and IDs for current load</name>
-    <type>TableInput</type>
+    <name>Retrieve Parameters</name>
+    <type>GetVariable</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -111,37 +121,23 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>WeatherAnalysis DB</connection>
-    <sql>SELECT	file_id&#xa;		,file_name&#xa;FROM	&#x22;staging&#x22;.&#x22;JCMB_Weather_LoadFiles&#x22;&#xa;WHERE	load_id &#x3d; &#x3f;&#x3b;</sql>
-    <limit>0</limit>
-    <lookup>Retrieve Load ID</lookup>
-    <execute_each_row>N</execute_each_row>
-    <variables_active>Y</variables_active>
-    <lazy_conversion_active>N</lazy_conversion_active>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>388</xloc>
-      <yloc>99</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Retrieve Load ID</name>
-    <type>GetVariable</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
     <fields>
       <field>
-        <name>load_id</name>
-        <variable>&#x24;&#x7b;load_id&#x7d;</variable>
+        <name>load_id_to_use</name>
+        <variable>&#x24;&#x7b;load_id_to_use&#x7d;</variable>
         <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>load_state_to_set</name>
+        <variable> &#x24;&#x7b;load_state_to_set&#x7d;</variable>
+        <type>String</type>
         <format/>
         <currency/>
         <decimal/>
@@ -153,8 +149,42 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>187</xloc>
-      <yloc>99</yloc>
+      <xloc>152</xloc>
+      <yloc>120</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Execute SQL script</name>
+    <type>ExecSQL</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>WeatherAnalysis DB</connection>
+    <execute_each_row>Y</execute_each_row>
+    <single_statement>N</single_statement>
+    <replace_variables>N</replace_variables>
+    <quoteString>N</quoteString>
+    <sql>UPDATE staging.&#x22;JCMB_Weather_Loads&#x22; SET load_latest_state &#x3d; &#x3f; WHERE load_id &#x3d; &#x3f;&#x3b;</sql>
+    <set_params>N</set_params>
+    <insert_field/>
+    <update_field/>
+    <delete_field/>
+    <read_field/>
+    <arguments>
+       <argument><name>load_state_to_set</name></argument>
+       <argument><name>load_id_to_use</name></argument>
+    </arguments>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>322</xloc>
+      <yloc>120</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
