@@ -71,19 +71,6 @@ AS
 COMMENT ON VIEW staging."JCMB_Weather_Staging_Summary" IS 'Summary view for manual load checking.';
 
 
-DROP TABLE IF EXISTS staging."JCMB_Weather_Data_Audit";
-DROP TYPE IF EXISTS record_file_event;
-CREATE TYPE record_file_event AS ENUM ('created', 'updated');
-CREATE TABLE staging."JCMB_Weather_Data_Audit"
-	(
-	"weather_reading_date_time"	timestamp without time zone 	NOT NULL,
-	"file_id"			integer				NOT NULL,
-	"record_file_event"		record_file_event		NOT NULL
-	);
-ALTER TABLE staging."JCMB_Weather_Data_Audit" OWNER TO postgres;
-ALTER TABLE staging."JCMB_Weather_Data_Audit" ADD CONSTRAINT "PK_JCMB_Weather_Data_Audit" PRIMARY KEY ("weather_reading_date_time", "file_id");
-
-
 DROP TABLE IF EXISTS public."JCMB_Weather_Data";
 CREATE TABLE public."JCMB_Weather_Data"
     (
@@ -95,7 +82,9 @@ CREATE TABLE public."JCMB_Weather_Data"
     "surface_temperature_c"             numeric(15,3)               	NOT NULL,
     "relative_humidity_percentage"      numeric(15,3)               	NOT NULL,
     "solar_flux_kw_per_m2"             	numeric(15,3)			NOT NULL,
-    "battery_v"                         numeric(15,3)               	NOT NULL
+    "battery_v"                         numeric(15,3)               	NOT NULL,
+    "file_id_created"			integer				NOT NULL,
+    "file_id_last_updated"			integer				NOT NULL
     );
 ALTER TABLE public."JCMB_Weather_Data"  OWNER TO postgres;
 ALTER TABLE public."JCMB_Weather_Data" ADD CONSTRAINT PK_JCMB_Weather_Data PRIMARY KEY ("date_time");
@@ -145,16 +134,17 @@ WHERE	"Test Result" = '!!! FAILURE !!!';
 
 CREATE OR REPLACE VIEW staging."JCMB_Weather_Staging_Conversions"
 AS
-	SELECT	date_time
-		,atmospheric_pressure_mbar
-		,rainfall_mm
-		,wind_speed_m_per_s
-		,wind_direction_degrees
-		,surface_temperature_c
-		,relative_humidity_percentage
-		,solar_flux_kw_per_m2
-		,battery_v
-		,file_id
+	SELECT	ConvertAndRank.date_time
+		,ConvertAndRank.atmospheric_pressure_mbar
+		,ConvertAndRank.rainfall_mm
+		,ConvertAndRank.wind_speed_m_per_s
+		,ConvertAndRank.wind_direction_degrees
+		,ConvertAndRank.surface_temperature_c
+		,ConvertAndRank.relative_humidity_percentage
+		,ConvertAndRank.solar_flux_kw_per_m2
+		,ConvertAndRank.battery_v
+		,ConvertAndRank.file_id
+		,lf.load_id
 	FROM	(
 		SELECT	staging."Convert_WeatherReading_DateTime"(date_time_text_source)	AS date_time
 			,CAST(atmospheric_pressure_mbar AS integer)				AS atmospheric_pressure_mbar
@@ -170,36 +160,52 @@ AS
 				(
 				PARTITION BY staging."Convert_WeatherReading_DateTime"(date_time_text_source)
 				ORDER BY CASE WHEN atmospheric_pressure_mbar LIKE '-%' THEN 1 ELSE 0 END, staged_row_id
+				/* Negative atmospheric pressure readings seem to be bad data so want to use them only if we have no alternative */
 				) AS LoadRanking
 		FROM 	staging."JCMB_Weather_Staging"
 		) AS ConvertAndRank
-	WHERE	LoadRanking = 1;
+		INNER JOIN staging."JCMB_Weather_LoadFiles" AS lf
+		ON lf.file_id = ConvertAndRank.file_id
+	WHERE	ConvertAndRank.LoadRanking = 1;
 COMMENT ON VIEW staging."JCMB_Weather_Staging_Conversions"
 IS 'Handle type conversions in a single place to aid clean upsert in proc.  Also removes duplicates in source data.';
 
 
-CREATE OR REPLACE FUNCTION staging."Upsert_Weather_Data"()
+/*
+Postgres doesn't currently have a single MERGE or UPSERT statement
+so will have to do load to public table in two steps
+*/
+
+CREATE OR REPLACE FUNCTION staging."Update_Existing_Weather_Data"(load_id_to_process int)
 RETURNS integer
 AS
 $BODY$
 BEGIN
-	-- Postgres doesn't currently have a single MERGE or UPSERT statement so will have to do this in two steps
+	UPDATE	public."JCMB_Weather_Data" AS d
+	SET	atmospheric_pressure_mbar 	= s.atmospheric_pressure_mbar
+		,rainfall_mm 			= s.rainfall_mm
+		,wind_speed_m_per_s 		= s.wind_speed_m_per_s
+		,wind_direction_degrees		= s.wind_direction_degrees
+		,surface_temperature_c		= s.surface_temperature_c
+		,relative_humidity_percentage	= s.relative_humidity_percentage
+		,solar_flux_kw_per_m2		= s.solar_flux_kw_per_m2
+		,battery_v			= s.battery_v
+		,file_id_last_updated		= s.file_id
+	FROM	staging."JCMB_Weather_Staging_Conversions" AS s
+	WHERE	s.date_time = d.date_time
+	AND	s.load_id = load_id_to_process
+	/* Return key details so can do more detailed audit logging */
+	RETURNING s.date_time, s.file_id;
+END
+$BODY$
+LANGUAGE PLPGSQL;
 
-	-- 1) Update any existing records
-		UPDATE	public."JCMB_Weather_Data" AS d
-		SET	atmospheric_pressure_mbar 	= s.atmospheric_pressure_mbar
-			,rainfall_mm 			= s.rainfall_mm
-			,wind_speed_m_per_s 		= s.wind_speed_m_per_s
-			,wind_direction_degrees		= s.wind_direction_degrees
-			,surface_temperature_c		= s.surface_temperature_c
-			,relative_humidity_percentage	= s.relative_humidity_percentage
-			,solar_flux_kw_per_m2		= s.solar_flux_kw_per_m2
-			,battery_v			= s.battery_v
-		FROM	staging."JCMB_Weather_Staging_Conversions" AS s
-		WHERE	s.date_time = d.date_time
-		RETURNING s.date_time, s.file_id;
 
-	-- 2) Insert any new records using anti-semi-join
+CREATE OR REPLACE FUNCTION staging."Insert_New_Weather_Data"(load_id_to_process int)
+RETURNS integer
+AS
+$BODY$
+BEGIN
 	INSERT INTO public."JCMB_Weather_Data"
 		(
 		date_time
@@ -211,6 +217,8 @@ BEGIN
 		,relative_humidity_percentage
 		,solar_flux_kw_per_m2
 		,battery_v
+		,file_id_created
+		,file_id_last_updated
 		)
 	SELECT	s.date_time
 		,s.atmospheric_pressure_mbar
@@ -221,15 +229,15 @@ BEGIN
 		,s.relative_humidity_percentage
 		,s.solar_flux_kw_per_m2
 		,s.battery_v
+		,s.file_id
+		,s.file_id
 	FROM	staging."JCMB_Weather_Staging_Conversions" AS s
 		LEFT OUTER JOIN public."JCMB_Weather_Data" AS d
 		ON s.date_time = d.date_time
-	WHERE	d.date_time IS NULL;
-
-	-- !!! TO DO - log which file IDs created and updated records - into audit table
-
-	RETURN 0;
-
+	WHERE	d.date_time IS NULL
+	AND	s.load_id = load_id_to_process
+	/* Return key details so can do more detailed audit logging */
+	RETURNING date_time, file_id_created;
 END
 $BODY$
 LANGUAGE PLPGSQL;
