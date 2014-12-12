@@ -20,19 +20,19 @@ def ParseContentTypeForHTMLText(contenttype):
         return (True, result.group(1)) 
         
 
-def GetHTMLTextFromUrl(targeturl, responsefunc=ur.urlopen):
-    response = responsefunc(targeturl)
+def GetHTMLTextFromResponse(response):
     contenttype = response.getheader('Content-Type')
     istexthtml, encoding = ParseContentTypeForHTMLText(contenttype)
     if not istexthtml:
-        raise Exception('Response body is not TEXT/HTML.')
+        raise Exception('Response content is not TEXT/HTML.')
     html = response.read().decode(encoding)
     return html
 
 
 if __name__ == '__main__':
 
-    print(GetHTMLTextFromUrl('http://www.geos.ed.ac.uk/~weather/jcmb_ws/'))
+    response = ur.urlopen('http://www.geos.ed.ac.uk/~weather/jcmb_ws/')
+    print(GetHTMLTextFromResponse(response))
 
 
 #class JCMBFileIndex_HTMLParser(HTMLParser):
