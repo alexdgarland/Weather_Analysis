@@ -61,14 +61,9 @@ class Tests_GetHTMLTextFromResponse(unittest.TestCase):
             
     def test_nonhtmlresponse_raisesexception(self):
         response = MockHTTPResponse('text/xml', '<xml></xml>')
-        thrownexception = None # Initial state
-        try:
-            outputtext = gwf.GetHTMLTextFromResponse(response)
-        except Exception as e:
-            thrownexception = e
-        self.assertEqual(type(thrownexception), type(Exception()))
-        self.assertEqual(str(thrownexception),
-                         'Response content is not TEXT/HTML.')
+        erroring_function = lambda: gwf.GetHTMLTextFromResponse(response)
+        self.assertRaises(Exception, erroring_function)
+        
 
 
 if __name__ == '__main__':

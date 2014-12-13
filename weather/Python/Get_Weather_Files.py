@@ -4,10 +4,9 @@ import re # regex module
 import sys
 if sys.version_info.major >= 3:
     import urllib.request as ur
-    from html.parser import HTMLParser
 else:
     import urllib2 as ur
-    from HTMLParser import HTMLParser
+
 
 
 def ParseContentTypeForHTMLText(contenttype):
@@ -29,16 +28,19 @@ def GetHTMLTextFromResponse(response):
     return html
 
 
+class WeatherFile(object):
+    def __init__(self, filename, modified_date_string):
+        self.filename = filename
+
+
+
+
 if __name__ == '__main__':
 
     response = ur.urlopen('http://www.geos.ed.ac.uk/~weather/jcmb_ws/')
-    print(GetHTMLTextFromResponse(response))
+    html = GetHTMLTextFromResponse(response)
+    with open(r'C:\Users\Alexander\Desktop\Index of  ~weather jcmb_ws.html', 'w') as f:
+        f.write(html)
+    
 
 
-#class JCMBFileIndex_HTMLParser(HTMLParser):
-#    
-#    
-#
-#parser = JCMBFileIndex_HTMLParser()
-#
-#parser.feed(html)
