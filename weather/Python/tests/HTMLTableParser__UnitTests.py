@@ -9,16 +9,17 @@ import HTMLTableParser as htp
 
 def get_expectedtable():
     table = []
-    table.append(['Name', 'Last modified', 'Size', 'Description'])
-    table.append([{'href':'/~weather/','text':'Parent Directory'},'','-',''])
-    table.append([{'href':'CR10X1.DAT','text':'CR10X1.DAT'},
-                              '12-Dec-2014 22:00','307M', ''])
-    table.append([{'href':'JCMB_2006.csv','text':'JCMB_2006.csv'},
-                              '19-Mar-2012 12:57', '19M', ''])
-    table.append([{'href':'JCMB_2006_Aug.csv','text':'JCMB_2006_Aug.csv'},
-                              '19-Mar-2012 12:58', '2.5M', ''])
-    table.append([{'href':'JCMB_2014_Jun.csv','text':'JCMB_2014_Jun.csv'},
-                              '07-Nov-2014 10:52', '2.5M', ''])
+    table.append(['', 'Name', 'Last modified', 'Size', 'Description'])
+    table.append(['', {'href':'/~weather/','text':'Parent Directory'},
+                      '' , '-' ,''])
+    table.append(['', {'href':'CR10X1.DAT','text':'CR10X1.DAT'},
+                      '12-Dec-2014 22:00','307M', ''])
+    table.append(['', {'href':'JCMB_2006.csv','text':'JCMB_2006.csv'},
+                      '19-Mar-2012 12:57', '19M', ''])
+    table.append(['', {'href':'JCMB_2006_Aug.csv','text':'JCMB_2006_Aug.csv'},
+                      '19-Mar-2012 12:58', '2.5M', ''])
+    table.append(['', {'href':'JCMB_2014_Jun.csv','text':'JCMB_2014_Jun.csv'},
+                      '07-Nov-2014 10:52', '2.5M', ''])
     return table
 
 
