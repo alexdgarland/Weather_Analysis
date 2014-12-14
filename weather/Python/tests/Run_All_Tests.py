@@ -1,8 +1,14 @@
 #!/usr/bin/python
 
 import os.path as op
-import subprocess
+import os
+import subprocess as sp
 
 testfolderpath = op.split(op.realpath(__file__))[0]
-command = "cd {0} & python -m unittest discover -p *__UnitTests.py"
-subprocess.call(command.format(testfolderpath), shell=True)
+filenamesuffix = '__UnitTests.py'
+
+for filename in os.listdir(testfolderpath):
+    if filename.endswith(filenamesuffix):
+	fullpath = op.join(testfolderpath, filename)
+        sp.call("python " + fullpath, shell=True)
+

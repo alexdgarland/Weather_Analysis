@@ -8,6 +8,7 @@ else:
     import urllib2 as ur
 
 
+
 def ParseContentTypeForHTMLText(contenttype):
     if contenttype[:9] != 'text/html':
         return (False, None)

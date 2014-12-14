@@ -164,7 +164,7 @@ class LinkTagHandlingState(AbstractTagHandlingState):
 # Here is the actual parser:
 
 
-class HTMLTableParser(HTMLParser, object):    
+class HTMLTableParser(HTMLParser):    
     """
     Parses HTML text into a nested list -
     each inner list represents a row in the table.
