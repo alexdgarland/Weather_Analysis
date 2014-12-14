@@ -8,8 +8,10 @@ else:
     from HTMLParser import HTMLParser
 
 
-# Custom exception type for badly-formed HTML.
 class BadHTMLError(Exception):
+    """
+    Custom exception type for badly-formed HTML.
+    """
     
     def __init__(self, message):
         super(type(self), self).__init__("Badly-formed HTML - " + message)
@@ -46,13 +48,13 @@ class AbstractTagHandlingState(object):
         pass
 
 
-
 class DefaultTagHandlingState(AbstractTagHandlingState):
     """
     Starting state for HTML parsing, in this state nothing is added
     to the table construct, but it will handle transition
     to more active states where required.
     """
+
     def handle_starttag(self, tag, attrs):
         if tag == 'table':
             self.transition_to(TableTagHandlingState)
@@ -62,6 +64,7 @@ class TableTagHandlingState(AbstractTagHandlingState):
     """
     Basically just acts to transition into row handling state.
     """
+
     def handle_starttag(self, tag, attrs):
         if tag == 'tr':
             self.transition_to(RowTagHandlingState)
@@ -74,6 +77,9 @@ class TableTagHandlingState(AbstractTagHandlingState):
 
 
 class RowTagHandlingState(AbstractTagHandlingState):
+    """
+    Handles transitions in and out of cell handling states.
+    """
 
     def handle_starttag(self, tag, attrs):
         if tag == 'th':
@@ -92,6 +98,10 @@ class RowTagHandlingState(AbstractTagHandlingState):
 
 
 class AbstractCellTagHandlingState(AbstractTagHandlingState):
+    """
+    Abstract base class holding shared processing functionality
+    for two types of cells (header, data).
+    """
 
     __metaclass__ = ABCMeta
     
@@ -105,8 +115,11 @@ class AbstractCellTagHandlingState(AbstractTagHandlingState):
     
 
 class HeaderCellTagHandlingState(AbstractCellTagHandlingState):
-    # Note that unlike with data cells, we are not interested
-    # in any link attributes present in start tags.
+    """
+    Handles transition back to row handling state.
+    We use only the processing from the abstract base class
+    (i.e., we are not interested in links in the header).
+    """
 
     def handle_endtag(self, tag):
         if tag == 'th':
@@ -114,7 +127,11 @@ class HeaderCellTagHandlingState(AbstractCellTagHandlingState):
 
 
 class DataCellTagHandlingState(AbstractCellTagHandlingState):
-    
+    """    
+    Handles transition back to row handling state (as per the header state).
+    Also adds processing logic and an onward state transition to handle links.
+    """
+
     def handle_starttag(self, tag, attrs):
         if tag == 'a':
             if len(attrs) >= 1 and attrs[0][0] == 'href':
@@ -127,6 +144,12 @@ class DataCellTagHandlingState(AbstractCellTagHandlingState):
             
 
 class LinkTagHandlingState(AbstractTagHandlingState):
+    """
+    Adds the text content of the cell to the current link dictionary
+    which will already have an href added by the cell handler state.
+    On exiting the state, adds the link (dict) to the current row
+    and returns to the cell handler state.
+    """
     
     def handle_data(self, data):
         self._parser._currentlink['text'] = data.strip()
@@ -137,11 +160,19 @@ class LinkTagHandlingState(AbstractTagHandlingState):
             self.transition_to(DataCellTagHandlingState)
 
 
+# End of state declarations.
+# Here is the actual parser:
+
+
 class HTMLTableParser(HTMLParser):    
     """
     Parses HTML text into a nested list -
     each inner list represents a row in the table.
-    """    
+    
+    The methods used to build the in-memory table structure
+    are taken from a state machine (accessed via self._taghandlingstate)
+    which transitions itself as the parser progresses through the document, 
+    """
     
     def set_state(self, newstate):
         self._taghandlingstate = newstate(parser=self)
