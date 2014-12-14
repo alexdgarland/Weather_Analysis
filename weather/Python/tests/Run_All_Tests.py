@@ -9,6 +9,6 @@ filenamesuffix = '__UnitTests.py'
 
 for filename in os.listdir(testfolderpath):
     if filename.endswith(filenamesuffix):
-	fullpath = op.join(testfolderpath, filename)
+        fullpath = op.join(testfolderpath, filename)
         sp.call("python " + fullpath, shell=True)
 
