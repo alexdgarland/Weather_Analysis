@@ -91,10 +91,10 @@ class RowTagHandlingState(AbstractTagHandlingState):
             self.transition_to(TableTagHandlingState)
 
 
-class HeaderCellTagHandlingState(AbstractTagHandlingState):
-    # Note that unlike with data cells, we are not interested
-    # in any link attributes present in start tags.
+class AbstractCellTagHandlingState(AbstractTagHandlingState):
 
+    __metaclass__ = ABCMeta
+    
     def handle_data(self, data):
         # Append text content to list for current row.
         self._parser.add_cell(data.strip())
@@ -102,35 +102,29 @@ class HeaderCellTagHandlingState(AbstractTagHandlingState):
     def handle_entityref(self, name):
         if name == 'nbsp':
             self._parser.add_cell('')
+    
+
+class HeaderCellTagHandlingState(AbstractCellTagHandlingState):
+    # Note that unlike with data cells, we are not interested
+    # in any link attributes present in start tags.
 
     def handle_endtag(self, tag):
         if tag == 'th':
             self.transition_to(RowTagHandlingState)
 
 
-class DataCellTagHandlingState(AbstractTagHandlingState):
+class DataCellTagHandlingState(AbstractCellTagHandlingState):
     
     def handle_starttag(self, tag, attrs):
         if tag == 'a':
             if len(attrs) >= 1 and attrs[0][0] == 'href':
                 self._parser._currentlink['href'] = attrs[0][1]
             self.transition_to(LinkTagHandlingState)
-    
-    def handle_data(self, data):
-        self._parser.add_cell(data.strip())
-        
-    def handle_entityref(self, name):
-        if name == 'nbsp':
-            self._parser.add_cell('')
 
     def handle_endtag(self, tag):
         if tag == 'td':
             self.transition_to(RowTagHandlingState)
             
-            
-## TO DO: header and data cells share a lot of functionality
-## so can refactor to inherit from shared base class once they pass tests.
-
 
 class LinkTagHandlingState(AbstractTagHandlingState):
     
@@ -151,10 +145,7 @@ class HTMLTableParser(HTMLParser):
     
     def set_state(self, newstate):
         self._taghandlingstate = newstate(parser=self)
-    
-    def has_open_row(self):
-        return (self._currentrow != [])
-            
+                
     def add_cell(self, celldata):
         self._currentrow.append(celldata)
 
@@ -163,7 +154,7 @@ class HTMLTableParser(HTMLParser):
         self._currentlink = {}
     
     def commit_row(self):
-        if self.has_open_row():
+        if self._currentrow != []:
             self._table.append(self._currentrow)
             self._currentrow = []
         
