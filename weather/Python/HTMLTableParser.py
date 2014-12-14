@@ -8,6 +8,13 @@ else:
     from HTMLParser import HTMLParser
 
 
+# Custom exception type for badly-formed HTML.
+class BadHTMLError(Exception):
+    
+    def __init__(self, message):
+        super(type(self), self).__init__("Badly-formed HTML - " + message)
+
+
 # Set up various tag handlers which will be used
 # as part of a state machine within the parser.
 
@@ -60,14 +67,10 @@ class TableTagHandlingState(AbstractTagHandlingState):
             self.transition_to(RowTagHandlingState)
         
     def handle_endtag(self, tag):
-        if tag == 'table':
-            if self._parser.has_open_row():
-                # Raise error - could just commit row
-                # if we want to handle tolerantly
-                raise Exception("Badly-formed HTML - " +
-                                "table ends without completing open row.")
-            else:
-                self.transition_to(DefaultTagHandlingState)
+        if tag in ('body', 'html'):
+            raise BadHTMLError("Document ends without closing table.")
+        else:
+            self.transition_to(DefaultTagHandlingState)
 
 
 class RowTagHandlingState(AbstractTagHandlingState):
@@ -79,6 +82,10 @@ class RowTagHandlingState(AbstractTagHandlingState):
             self.transition_to(DataCellTagHandlingState)
         
     def handle_endtag(self, tag):
+        if tag == 'table':
+            raise BadHTMLError("Table ends without closing row.")        
+        if tag in ('body', 'html'):
+            raise BadHTMLError("Document ends without closing row.")
         if tag == 'tr':
             self._parser.commit_row()
             self.transition_to(TableTagHandlingState)
