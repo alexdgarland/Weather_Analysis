@@ -1,5 +1,6 @@
 #!/usr/bin/python
-from abc import ABCMeta, abstractmethod
+
+from abc import ABCMeta
 import sys
 if sys.version_info.major >= 3:
     from html.parser import HTMLParser
@@ -28,11 +29,15 @@ class AbstractTagHandlingState(object):
     def handle_starttag(self, tag, attrs):
         pass
 
+    def handle_data(self, data):
+        pass
+
+    def handle_entityref(self, name):
+        pass
+
     def handle_endtag(self, tag):
         pass
 
-    def handle_data(self, data):
-        pass
 
 
 class DefaultTagHandlingState(AbstractTagHandlingState):
@@ -51,64 +56,110 @@ class TableTagHandlingState(AbstractTagHandlingState):
     Basically just acts to transition into row handling state.
     """
     def handle_starttag(self, tag, attrs):
-        if tag == 'th':
-            self.transition_to(HeaderTagHandlingState)
-        elif tag == 'tr':
+        if tag == 'tr':
             self.transition_to(RowTagHandlingState)
         
     def handle_endtag(self, tag):
         if tag == 'table':
             if self._parser.has_open_row():
-                # Raise error - could just commit row if we want to handle tolerantly
-                raise Exception("Badly-formed HTML - table ends without completing open row.")
-            self.transition_to(DefaultTagHandlingState)
+                # Raise error - could just commit row
+                # if we want to handle tolerantly
+                raise Exception("Badly-formed HTML - " +
+                                "table ends without completing open row.")
+            else:
+                self.transition_to(DefaultTagHandlingState)
 
 
 class RowTagHandlingState(AbstractTagHandlingState):
-    """
-    Processes stuff... :-)
-        **** TO DO ****
-    """
+
     def handle_starttag(self, tag, attrs):
-        # Here's where we actually do some stuff
-        pass
-    
-    def handle_endtag(self, tag, activetag='tr'):
-        if tag == activetag:
+        if tag == 'th':
+            self.transition_to(HeaderCellTagHandlingState)
+        elif tag == 'td':
+            self.transition_to(DataCellTagHandlingState)
+        
+    def handle_endtag(self, tag):
+        if tag == 'tr':
             self._parser.commit_row()
             self.transition_to(TableTagHandlingState)
 
 
-class HeaderTagHandlingState(RowTagHandlingState):
+class HeaderCellTagHandlingState(AbstractTagHandlingState):
+    # Note that unlike with data cells, we are not interested
+    # in any link attributes present in start tags.
+
+    def handle_data(self, data):
+        # Append text content to list for current row.
+        self._parser.add_cell(data.strip())
+
+    def handle_entityref(self, name):
+        if name == 'nbsp':
+            self._parser.add_cell('')
+
+    def handle_endtag(self, tag):
+        if tag == 'th':
+            self.transition_to(RowTagHandlingState)
+
+
+class DataCellTagHandlingState(AbstractTagHandlingState):
     
     def handle_starttag(self, tag, attrs):
-        # Here's where we actually do some stuff
-        pass
+        if tag == 'a':
+            if len(attrs) >= 1 and attrs[0][0] == 'href':
+                self._parser._currentlink['href'] = attrs[0][1]
+            self.transition_to(LinkTagHandlingState)
     
+    def handle_data(self, data):
+        self._parser.add_cell(data.strip())
+        
+    def handle_entityref(self, name):
+        if name == 'nbsp':
+            self._parser.add_cell('')
+
     def handle_endtag(self, tag):
-        super(type(self), self).handle_endtag(tag, activetag='th')
+        if tag == 'td':
+            self.transition_to(RowTagHandlingState)
+            
+            
+## TO DO: header and data cells share a lot of functionality
+## so can refactor to inherit from shared base class once they pass tests.
 
 
-# Also probably need cell and link handling states
+class LinkTagHandlingState(AbstractTagHandlingState):
+    
+    def handle_data(self, data):
+        self._parser._currentlink['text'] = data.strip()
 
-# The parser itself:
+    def handle_endtag(self, tag):
+        if tag == 'a':
+            self._parser.commit_link()
+            self.transition_to(DataCellTagHandlingState)
 
-class HTMLTableParser(HTMLParser):
 
+class HTMLTableParser(HTMLParser):    
+    """
+    Parses HTML text into a nested list -
+    each inner list represents a row in the table.
+    """    
+    
     def set_state(self, newstate):
         self._taghandlingstate = newstate(parser=self)
     
     def has_open_row(self):
         return (self._currentrow != [])
-    
-    def commit_row(self):
-        self._table.append(self._currentrow)
-        self._currentrow = []
-        
+            
+    def add_cell(self, celldata):
+        self._currentrow.append(celldata)
+
     def commit_link(self):
-        self._currentrow.append(self._currentlink)
+        self.add_cell(self._currentlink)
         self._currentlink = {}
     
+    def commit_row(self):
+        if self.has_open_row():
+            self._table.append(self._currentrow)
+            self._currentrow = []
+        
     def feed(self, html):
         self._table = []
         self._currentrow = []
@@ -125,10 +176,9 @@ class HTMLTableParser(HTMLParser):
     def handle_data(self, data):
         self._taghandlingstate.handle_data(data)
 
+    def handle_entityref(self, name):
+        self._taghandlingstate.handle_entityref(name)
+
     def GetTable(self, html):
-        """
-        Parse the HTML table to a nested list as a simple first step,
-        from which we can later identify file info through further processing.
-        """
         self.feed(html)
         return self._table
