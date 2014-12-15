@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import HTMLResponse as hr
+import HTMLTableParser as htp
 
 import sys
 if sys.version_info[0] >= 3:
@@ -15,6 +16,9 @@ if __name__ == '__main__':
     httpresponse = ur.urlopen('http://www.geos.ed.ac.uk/~weather/jcmb_ws/')
     
     htmlresponse = hr.HTMLResponse(httpresponse)
+    
+    table = htp.HTMLTableParser().GetTable(htmlresponse.bodytext)
 
-    print(htmlresponse.bodytext)
+    for row in table:
+        print(row)
     
