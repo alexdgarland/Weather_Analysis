@@ -1,10 +1,12 @@
 #!/usr/bin/python
 
 import unittest
+
 import testhelper as t
 t.register_maincodefolder()
 # Get module under test
 import WeatherDataFile as wdf
+
 import datetime as dt
 
 
@@ -45,6 +47,22 @@ class Tests_WeatherDataFile_SizeConversions(unittest.TestCase):
     def test_size_conversion_bad_number_format_gets_none(self):
         file = self._construct_file_with_size('5.3.3M')
         self.assertEqual(None, file.size_bytes)
+
+
+class Tests_WeatherDataFile_DateConversions(unittest.TestCase):
+
+    def _construct_file_with_date(self, date):
+        f = wdf.WeatherDataFile('test file', '<link>', date, '2.4M')
+        return f
+    
+    def test_valid_datestring_converted(self):
+        expecteddate = dt.datetime(2012, 3, 19, 12, 57)
+        file = self._construct_file_with_date('19-Mar-2012 12:57')
+        self.assertEqual(expecteddate, file.modified_date)
+
+    def test_bad_datestring_gets_none(self):
+        file = self._construct_file_with_date('ASDF')
+        self.assertEqual(None, file.modified_date)
        
 
 if __name__ == '__main__':

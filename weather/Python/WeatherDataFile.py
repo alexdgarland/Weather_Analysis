@@ -2,6 +2,7 @@
 
 import re # regex
 from math import pow
+import datetime as dt
 
 class WeatherDataFile(object):
     
@@ -29,5 +30,9 @@ class WeatherDataFile(object):
 
     @property
     def modified_date(self):
-        pass
-
+        try:
+            fmt = '%d-%b-%Y %H:%M'
+            return dt.datetime.strptime(self._modified_date_string, fmt)
+        except ValueError:
+            return None
+        
