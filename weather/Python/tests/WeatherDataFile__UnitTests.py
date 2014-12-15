@@ -38,8 +38,12 @@ class Tests_WeatherDataFile_SizeConversions(unittest.TestCase):
         file = self._construct_file_with_size('5Z')
         self.assertEqual(None, file.size_bytes)
  
-    def test_size_conversion_bad_format_gets_none(self):
+    def test_size_conversion_bad_exponent_format_gets_none(self):
         file = self._construct_file_with_size('5MG')
+        self.assertEqual(None, file.size_bytes)
+
+    def test_size_conversion_bad_number_format_gets_none(self):
+        file = self._construct_file_with_size('5.3.3M')
         self.assertEqual(None, file.size_bytes)
        
 

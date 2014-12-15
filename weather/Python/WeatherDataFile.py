@@ -21,7 +21,10 @@ class WeatherDataFile(object):
             exponent = { '' : 0, 'K' : 1, 'M' : 2, 'G' : 3 }[exponentpart]
         except KeyError:
             return None
-        numericpart = float(regexoutput.group(1))
+        try:
+            numericpart = float(regexoutput.group(1))
+        except ValueError:
+            return None
         return int(numericpart * pow(1024, exponent))
 
     @property
