@@ -63,6 +63,17 @@ class Tests_WeatherDataFile_DateConversions(unittest.TestCase):
     def test_bad_datestring_gets_none(self):
         file = self._construct_file_with_date('ASDF')
         self.assertEqual(None, file.modified_date)
+        
+
+class Tests_WeatherDataFile_ObjectOverrides(unittest.TestCase):
+    
+    def test_print_weather_data_file(self):
+        expected = 'File "test file" available via HTTP at <link>. '
+        expected = expected + 'Modified at 01-Jan-2014 12:30:00, size 2.4M.'
+        file = wdf.WeatherDataFile('test file', '<link>',
+                                   '01-Jan-2014 12:30:00', '2.4M')
+        actual = '{0}'.format(file)
+        self.assertEqual(expected, actual)
        
 
 if __name__ == '__main__':

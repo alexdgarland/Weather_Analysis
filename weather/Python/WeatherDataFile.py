@@ -36,3 +36,10 @@ class WeatherDataFile(object):
         except ValueError:
             return None
         
+    def __str__(self):
+        fmt = 'File "{0}" available via HTTP at {1}. '
+        fmt = fmt + 'Modified at {2}, size {3}.'
+        return_string = fmt.format(self.filename, self.link,
+                            self._modified_date_string, self._size_string)
+        return return_string
+

@@ -3,6 +3,7 @@
 from HTMLResponse import HTMLResponse
 from HTMLTableParser import HTMLTableParser
 from WeatherDataFile import WeatherDataFile
+import os.path as op
 
 import sys
 if sys.version_info[0] >= 3:
@@ -11,7 +12,10 @@ else:
     import urllib2 as ur
 
 
-def GetFilesFromTable(table, fileextension=None):
+indexurl = 'http://www.geos.ed.ac.uk/~weather/jcmb_ws/'
+
+
+def GetFilesFromTable(table, url=indexurl, fileextension=None):
     """
     Take a table (nested list, parsed from HTML)
     and output a list of file objects for each relevant row.
@@ -30,7 +34,7 @@ def GetFilesFromTable(table, fileextension=None):
         if _isfilerow(row):
             filename = row[1]['text']
             if _matchesextension(filename):
-                link = row[1]['href']
+                link = op.join(url, row[1]['href'])
                 date = row[2]
                 size = row[3]
                 files.append(WeatherDataFile(filename, link, date, size))   
@@ -40,12 +44,14 @@ def GetFilesFromTable(table, fileextension=None):
 
 if __name__ == '__main__':
 
-    httpresponse = ur.urlopen('http://www.geos.ed.ac.uk/~weather/jcmb_ws/')
+    httpresponse = ur.urlopen(indexurl)
     
     htmlresponse = HTMLResponse(httpresponse)
     
     table = HTMLTableParser().GetTable(htmlresponse.bodytext)
 
-    for row in table:
-        print(row)
+    files = GetFilesFromTable(table, fileextension='csv')
+
+    for f in files:
+        print(f)
     

@@ -34,12 +34,12 @@ class Tests_GetFilesFromTable(unittest.TestCase):
 
     def test_get_all_files(self):
         expectedlist = [self._datfile, self._csvfile]
-        files = gwf.GetFilesFromTable(self._table)
+        files = gwf.GetFilesFromTable(self._table, url='')
         self.assertTrue(self._filelists_equal(expectedlist, files))
 
     def test_get_csv_files_only(self):
         expectedlist = [self._csvfile]
-        files = gwf.GetFilesFromTable(self._table, 'csv')
+        files = gwf.GetFilesFromTable(self._table, url='', fileextension='csv')
         self.assertTrue(self._filelists_equal(expectedlist, files))
 
         
