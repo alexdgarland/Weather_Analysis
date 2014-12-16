@@ -2,6 +2,8 @@
 *.cfg
 # Temp files on Linux
 *~
+# Data files
+*.csv
 
 # EVERYTHING BELOW THIS LINE IS FROM STANDARD GITHUB TEMPLATE FOR PYTHON GITIGNORE
 

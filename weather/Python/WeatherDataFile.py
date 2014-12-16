@@ -3,6 +3,13 @@
 import re # regex
 from math import pow
 import datetime as dt
+import os.path as op
+
+import sys
+if sys.version_info[0] >= 3:
+    import urllib.request as ur
+else:
+    import urllib2 as ur
 
 class WeatherDataFile(object):
     
@@ -35,6 +42,11 @@ class WeatherDataFile(object):
             return dt.datetime.strptime(self._modified_date_string, fmt)
         except ValueError:
             return None
+            
+    def download(self, targetdirectory):
+        targetfile = op.join(targetdirectory, self.filename)
+        ur.urlretrieve(self.link, targetfile)  
+        
         
     def __str__(self):
         fmt = 'File "{0}" available via HTTP at {1}. '

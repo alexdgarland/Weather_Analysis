@@ -52,6 +52,16 @@ if __name__ == '__main__':
 
     files = GetFilesFromTable(table, fileextension='csv')
 
-    for f in files:
-        print(f)
+
+    # List and download files 
     
+    targetdirectory = op.join(op.split(op.split(op.realpath(__file__))[0])[0],
+                                       'data', 'downloaded')
+
+    for f in files:
+        print('\n' + str(f))
+        print('\nDOWNLOADING FILE "{0}" \nFROM {1} \nTO {2}\n\n'.format(
+            f.filename, f.link, targetdirectory))
+        f.download(targetdirectory)
+    
+    print("Finished!")
