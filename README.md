@@ -16,7 +16,10 @@ As of my last update, the solution is not complete - but if you do want to give 
 
 1)  Install Postgres (see http://www.postgresql.org/download/).  My development version is 9.3; the solution may work on earlier versions but I make no guarantees, I think there may be at least one bit of recently added syntax used (so requiring alteration for <=9.2).
 
-2)  Set up users.  At minimum, you'll want an admin-level account to set up the database.  As this is not a production app it is possible to run ETL and application code using the admin account, but if you want to add separate, less-privileged accounts for this, it is supported by the configuration options.  Unless you want to drill into object permissions in detail, just set it so account(s) can read and write data to any table/ view and execute any function/ procedure in the database created in step 3 (you obviously may need to create it first!) but not alter the schema.
+2)  Set up users.
+At minimum, you'll want an admin-level account to set up the database.
+As this is not a production app it is possible to run ETL and application code using the admin account, but if you want to add separate, less-privileged accounts for this, it is supported by the configuration options.
+Unless you want to drill into object permissions in detail, just set it so account(s) can read and write data to any table/ view and execute any function/ procedure in the database created in step 3 (you obviously may need to create it first!) but not alter the schema.
 
 3)  Create a new database for storing and processing weather data.
 
@@ -34,7 +37,7 @@ Note that at this point I'm assuming the script is run once to set up the databa
     WEATHERDBUSER       The name of the Postgres user account for running ETL jobs.
     WEATHERDBPASSWORD   The password for the above user account.
         
-An example file is provided in this repo as sample_config/kettle.properties.SAMPLE
+An example file is provided in this repo [here](sample_config/kettle.properties.SAMPLE).
     
 7)  If you don't already have Python installed, pick the latest version of Python 2 or Python 3 from (e.g.) https://www.python.org/downloads/.
 
@@ -52,7 +55,7 @@ For the analytical code (not written as of 02/01/2015 but planned), it's worth d
     weatheranalysis->
         database_name:  The name of the Postgres database created in step 3.
  
-An example file is provided in this repo as sample_config/PostgresConnection.cfg.SAMPLE
+An example file is provided in this repo [here](sample_config/PostgresConnection.cfg.SAMPLE).
 
 
     
