@@ -27,6 +27,11 @@ class AbstractTagHandlingState(object):
     In their default implementation they do nothing;
     at least one method should be overridden for any concrete inheriting class.
     """
+
+    # Python-2-style abstract class.
+    # If done this way, class can technically be instantiated
+    # if run in Python 3 interpreter
+    # but alternative (Py3 syntax) won't work in Py2 at all.
     __metaclass__ = ABCMeta
     
     def __init__(self, parser):
@@ -102,7 +107,11 @@ class AbstractCellTagHandlingState(AbstractTagHandlingState):
     Abstract base class holding shared processing functionality
     for two types of cells (header, data).
     """
-
+    
+    # Python-2-style abstract class.
+    # If done this way, class can technically be instantiated
+    # if run in Python 3 interpreter
+    # but alternative (Py3 syntax) won't work in Py2 at all.
     __metaclass__ = ABCMeta
     
     def handle_data(self, data):

@@ -11,6 +11,13 @@ if sys.version_info[0] >= 3:
 else:
     import urllib2 as ur
 
+
+class default_downloader(object):
+    "Wrapper round urlretrieve method to make unit testing easier."
+    def retrieve(self, url, filename):
+        ur.urlretrieve(url, filename)
+
+
 class WeatherDataFile(object):
     
     def __init__(self, filename, link, modified_date_string, size_string):
@@ -42,16 +49,21 @@ class WeatherDataFile(object):
             return dt.datetime.strptime(self._modified_date_string, fmt)
         except ValueError:
             return None
-            
-    def download(self, targetdirectory):
-        targetfile = op.join(targetdirectory, self.filename)
-        ur.urlretrieve(self.link, targetfile)  
+    
+    @property
+    def fileupdatename(self):
+        regexoutput = re.match('([A-Za-z0-9_\s]+)(.[A-Za-z]+)', self.filename)
+        basename, extension = regexoutput.group(1), regexoutput.group(2)
+        formatted_date = self.modified_date.strftime('%Y%m%d_%H%M')
+        return basename + '_' + formatted_date + extension
         
+    def download(self, targetdirectory, downloader=default_downloader()):
+        targetfile = op.join(targetdirectory, self.filename)
+        downloader.retrieve(self.link, targetfile)  
         
     def __str__(self):
         fmt = 'File "{0}" available via HTTP at {1}. '
         fmt = fmt + 'Modified at {2}, size {3}.'
-        return_string = fmt.format(self.filename, self.link,
-                            self._modified_date_string, self._size_string)
-        return return_string
+        return fmt.format(self.filename, self.link, self._modified_date_string,
+                          self._size_string)
 

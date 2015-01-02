@@ -74,7 +74,16 @@ class Tests_WeatherDataFile_ObjectOverrides(unittest.TestCase):
                                    '01-Jan-2014 12:30:00', '2.4M')
         actual = '{0}'.format(file)
         self.assertEqual(expected, actual)
-       
+
+
+class Tests_WeatherDataFile_FileUpdateName(unittest.TestCase):
+    
+    def test_fileupdatename(self):
+        file = wdf.WeatherDataFile('test_file.csv', '<link>',
+                                   '01-Jan-2014 12:30', '2.4M')
+        expectedname = 'test_file_20140101_1230.csv'
+        self.assertEqual(expectedname, file.fileupdatename)
+
 
 if __name__ == '__main__':
     unittest.main()
