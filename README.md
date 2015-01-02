@@ -1,4 +1,4 @@
-Weather_Analysis
+Weather Analysis
 ===========================
 
 Sample ETL/ analysis application written using Python, PostgreSQL and Pentaho DI.
