@@ -7,33 +7,8 @@ if sys.version_info[0] >= 3:
 else:
     from HTMLParser import HTMLParser
 
-import TagHandlingState as ths
-
-
-class TableBuilder(object):
-    """
-    Class to build in-memory (nested list) representation of table from HTML.
-    """
-    
-    def __init__(self):
-        self.table = []
-        self.currentrow = []
-        self.currentlink = {}
-
-    def __iter__(self):
-        return self.table.__iter__()
-
-    def add_cell(self, celldata):
-        self.currentrow.append(celldata)
-        
-    def commit_link(self):
-        self.add_cell(self.currentlink)
-        self.currentlink = {}
-        
-    def commit_row(self):
-        if self.currentrow != []:
-            self.table.append(self.currentrow)
-            self.currentrow = []
+from . import TagHandlingState as ths
+from .TableBuilder import TableBuilder
 
 
 class HTMLTableParser(HTMLParser, object):    
@@ -48,8 +23,11 @@ class HTMLTableParser(HTMLParser, object):
 
     def __init__(self):
         self._state_instances = { }
-        super(type(self), self).__init__()
-        
+        if sys.version_info[0] >= 3:
+            super(type(self), self).__init__(convert_charrefs=True)
+        else:
+            super(type(self), self).__init__()
+            
     def _transition(self, new_state_class):
         # Only act if handler function has returned a new state type
         if new_state_class:

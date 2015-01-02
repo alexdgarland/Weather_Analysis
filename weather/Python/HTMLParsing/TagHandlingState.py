@@ -1,16 +1,9 @@
 #!/usr/bin/python
 
 
+from .Errors import BadHTMLError
 from abc import ABCMeta
 
-
-class BadHTMLError(Exception):
-    """
-    Custom exception type for badly-formed HTML.
-    """
-    
-    def __init__(self, message):
-        super(type(self), self).__init__("Badly-formed HTML - " + message)
 
 
 # Set up various tag handlers which will be used

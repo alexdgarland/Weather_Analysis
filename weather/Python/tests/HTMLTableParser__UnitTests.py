@@ -1,11 +1,13 @@
 #!/usr/bin/python
 
+
 import unittest
 import testhelper as t
 t.register_maincodefolder()
-# Get module under test
-import HTMLTableParser as htp
-import TagHandlingState as ths
+
+# Get module(s) under test
+import HTMLParsing as hp
+from HTMLParsing.Errors import BadHTMLError
 
 
 def get_expectedtable():
@@ -27,7 +29,7 @@ def get_expectedtable():
 class Tests_HTMLTableParser(unittest.TestCase):
     
     def setUp(self):
-        self._parser = htp.HTMLTableParser()
+        self._parser = hp.HTMLTableParser()
         
     def test_table_as_expected(self):
         # ARRANGE - Set up nested list we want from parsing the HTML table
@@ -46,7 +48,7 @@ class Tests_HTMLTableParser(unittest.TestCase):
         # ACT        
         try:
             self._parser.GetTable(badhtml)
-        except ths.BadHTMLError as err:
+        except BadHTMLError as err:
             thrownerror = err
         # ASSERT
         self.assertFalse(thrownerror is None)

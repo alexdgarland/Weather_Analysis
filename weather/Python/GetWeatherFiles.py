@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from HTMLResponse import HTMLResponse
-from HTMLTableParser import HTMLTableParser
+from HTMLParsing import HTMLTableParser
 from WeatherDataFile import WeatherDataFile
 import os.path as op
 
