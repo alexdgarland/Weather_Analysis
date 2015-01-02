@@ -1,4 +1,7 @@
-Python_Postgres_Bits-Pieces
+Weather_Analysis
 ===========================
 
-Just some random bits and pieces to play around with Python (3.4 - Anaconda/ Spyder) and Postgres 9.3.  'Cos, you know, cool stuff...
+Sample ETL/ analysis application written using Python, PostgreSQL and Pentaho DI.
+
+Using publically-available data from the University of Edinburgh School of Geosciences:
+http://www.geos.ed.ac.uk/Weathercam/station/data.html
