@@ -5,6 +5,7 @@ import testhelper as t
 t.register_maincodefolder()
 # Get module under test
 import HTMLTableParser as htp
+import TagHandlingState as ths
 
 
 def get_expectedtable():
@@ -33,7 +34,7 @@ class Tests_HTMLTableParser(unittest.TestCase):
         expectedtable = get_expectedtable()        
         # ACT - parse some HTML
         examplehtml = t.get_testdata_text('WeatherFile_Index_Example.html')
-        actualtable = self._parser.GetTable(examplehtml)        
+        actualtable = self._parser.GetTable(examplehtml) 
         # ASSERT
         self.assertEqual(expectedtable, actualtable)
         
@@ -45,7 +46,7 @@ class Tests_HTMLTableParser(unittest.TestCase):
         # ACT        
         try:
             self._parser.GetTable(badhtml)
-        except htp.BadHTMLError as err:
+        except ths.BadHTMLError as err:
             thrownerror = err
         # ASSERT
         self.assertFalse(thrownerror is None)

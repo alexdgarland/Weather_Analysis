@@ -52,7 +52,18 @@ class PostgresFileListStore(AbstractFileListStore):
     def __init__(self, connection=None):
         self._connection = connection or get_defaultconnection()
 
-#    def InsertIfNew(self, file):
+    def InsertIfNew(self, file):        
+        insert_statement = """
+        
+        """
+        with self._connection.cursor() as cur:
+            cur.execute(insert_statement,
+                        (file.filename, file.modified_date,file.fileupdatename)
+                        )
+            result = cur.fetchone()[0]
+        return result
 #        
 #    def LogDownload(self, file):
         
+        def __del__(self):
+            self._connection.close()

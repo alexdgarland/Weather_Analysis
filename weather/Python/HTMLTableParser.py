@@ -1,176 +1,39 @@
 #!/usr/bin/python
 
-from abc import ABCMeta
+
 import sys
 if sys.version_info[0] >= 3:
     from html.parser import HTMLParser
 else:
     from HTMLParser import HTMLParser
 
+import TagHandlingState as ths
 
-class BadHTMLError(Exception):
+
+class TableBuilder(object):
     """
-    Custom exception type for badly-formed HTML.
+    Class to build in-memory (nested list) representation of table from HTML.
     """
     
-    def __init__(self, message):
-        super(type(self), self).__init__("Badly-formed HTML - " + message)
+    def __init__(self):
+        self.table = []
+        self.currentrow = []
+        self.currentlink = {}
 
+    def __iter__(self):
+        return self.table.__iter__()
 
-# Set up various tag handlers which will be used
-# as part of a state machine within the parser.
-
-
-class AbstractTagHandlingState(object):
-    """
-    Abstract class defining required methods for tag handling states.
-    In their default implementation they do nothing;
-    at least one method should be overridden for any concrete inheriting class.
-    """
-
-    # Python-2-style abstract class.
-    # If done this way, class can technically be instantiated
-    # if run in Python 3 interpreter
-    # but alternative (Py3 syntax) won't work in Py2 at all.
-    __metaclass__ = ABCMeta
-    
-    def __init__(self, parser):
-        self._parser = parser
+    def add_cell(self, celldata):
+        self.currentrow.append(celldata)
         
-    def transition_to(self, newstate):
-        self._parser.set_state(newstate)
-    
-    def handle_starttag(self, tag, attrs):
-        pass
-
-    def handle_data(self, data):
-        pass
-
-    def handle_entityref(self, name):
-        pass
-
-    def handle_endtag(self, tag):
-        pass
-
-
-class DefaultTagHandlingState(AbstractTagHandlingState):
-    """
-    Starting state for HTML parsing, in this state nothing is added
-    to the table construct, but it will handle transition
-    to more active states where required.
-    """
-
-    def handle_starttag(self, tag, attrs):
-        if tag == 'table':
-            self.transition_to(TableTagHandlingState)
-
-
-class TableTagHandlingState(AbstractTagHandlingState):
-    """
-    Basically just acts to transition into row handling state.
-    """
-
-    def handle_starttag(self, tag, attrs):
-        if tag == 'tr':
-            self.transition_to(RowTagHandlingState)
+    def commit_link(self):
+        self.add_cell(self.currentlink)
+        self.currentlink = {}
         
-    def handle_endtag(self, tag):
-        if tag in ('body', 'html'):
-            raise BadHTMLError("Document ends without closing table.")
-        else:
-            self.transition_to(DefaultTagHandlingState)
-
-
-class RowTagHandlingState(AbstractTagHandlingState):
-    """
-    Handles transitions in and out of cell handling states.
-    """
-
-    def handle_starttag(self, tag, attrs):
-        if tag == 'th':
-            self.transition_to(HeaderCellTagHandlingState)
-        elif tag == 'td':
-            self.transition_to(DataCellTagHandlingState)
-        
-    def handle_endtag(self, tag):
-        if tag == 'table':
-            raise BadHTMLError("Table ends without closing row.")        
-        if tag in ('body', 'html'):
-            raise BadHTMLError("Document ends without closing row.")
-        if tag == 'tr':
-            self._parser.commit_row()
-            self.transition_to(TableTagHandlingState)
-
-
-class AbstractCellTagHandlingState(AbstractTagHandlingState):
-    """
-    Abstract base class holding shared processing functionality
-    for two types of cells (header, data).
-    """
-    
-    # Python-2-style abstract class.
-    # If done this way, class can technically be instantiated
-    # if run in Python 3 interpreter
-    # but alternative (Py3 syntax) won't work in Py2 at all.
-    __metaclass__ = ABCMeta
-    
-    def handle_data(self, data):
-        # Append text content to list for current row.
-        self._parser.add_cell(data.strip())
-
-    def handle_entityref(self, name):
-        if name == 'nbsp':
-            self._parser.add_cell('')
-    
-
-class HeaderCellTagHandlingState(AbstractCellTagHandlingState):
-    """
-    Handles transition back to row handling state.
-    We use only the processing from the abstract base class
-    (i.e., we are not interested in links in the header).
-    """
-
-    def handle_endtag(self, tag):
-        if tag == 'th':
-            self.transition_to(RowTagHandlingState)
-
-
-class DataCellTagHandlingState(AbstractCellTagHandlingState):
-    """    
-    Handles transition back to row handling state (as per the header state).
-    Also adds processing logic and an onward state transition to handle links.
-    """
-
-    def handle_starttag(self, tag, attrs):
-        if tag == 'a':
-            if len(attrs) >= 1 and attrs[0][0] == 'href':
-                self._parser._currentlink['href'] = attrs[0][1]
-            self.transition_to(LinkTagHandlingState)
-
-    def handle_endtag(self, tag):
-        if tag == 'td':
-            self.transition_to(RowTagHandlingState)
-            
-
-class LinkTagHandlingState(AbstractTagHandlingState):
-    """
-    Adds the text content of the cell to the current link dictionary
-    which will already have an href added by the cell handler state.
-    On exiting the state, adds the link (dict) to the current row
-    and returns to the cell handler state.
-    """
-    
-    def handle_data(self, data):
-        self._parser._currentlink['text'] = data.strip()
-
-    def handle_endtag(self, tag):
-        if tag == 'a':
-            self._parser.commit_link()
-            self.transition_to(DataCellTagHandlingState)
-
-
-# End of state declarations.
-# Here is the actual parser:
+    def commit_row(self):
+        if self.currentrow != []:
+            self.table.append(self.currentrow)
+            self.currentrow = []
 
 
 class HTMLTableParser(HTMLParser, object):    
@@ -182,41 +45,43 @@ class HTMLTableParser(HTMLParser, object):
     are taken from a state machine (accessed via self._taghandlingstate)
     which transitions itself as the parser progresses through the document, 
     """
-    
-    def set_state(self, newstate):
-        self._taghandlingstate = newstate(parser=self)
-                
-    def add_cell(self, celldata):
-        self._currentrow.append(celldata)
 
-    def commit_link(self):
-        self.add_cell(self._currentlink)
-        self._currentlink = {}
-    
-    def commit_row(self):
-        if self._currentrow != []:
-            self._table.append(self._currentrow)
-            self._currentrow = []
+    def __init__(self):
+        self._state_instances = { }
+        super(type(self), self).__init__()
         
-    def feed(self, html):
-        self._table = []
-        self._currentrow = []
-        self._currentlink = {}
-        self.set_state(DefaultTagHandlingState)
-        super(type(self), self).feed(html)        
+    def _transition(self, new_state_class):
+        # Only act if handler function has returned a new state type
+        if new_state_class:
+            # Memoise reusable instances of state classes
+            if new_state_class not in self._state_instances:
+                self._state_instances[new_state_class] = new_state_class()
+            # Assign instance to current state
+            self._state = self._state_instances[new_state_class]
         
     def handle_starttag(self, tag, attrs):
-        self._taghandlingstate.handle_starttag(tag, attrs)
+        new_state = self._state.handle_starttag_state(tag, attrs, self._builder)
+        self._transition(new_state)
         
     def handle_endtag(self, tag):
-        self._taghandlingstate.handle_endtag(tag)
+        new_state = self._state.handle_endtag_state(tag, self._builder)
+        self._transition(new_state)
 
     def handle_data(self, data):
-        self._taghandlingstate.handle_data(data)
+        new_state = self._state.handle_data_state(data, self._builder)
+        self._transition(new_state)
 
     def handle_entityref(self, name):
-        self._taghandlingstate.handle_entityref(name)
+        new_state = self._state.handle_entityref_state(name, self._builder)
+        self._transition(new_state)
 
     def GetTable(self, html):
         self.feed(html)
-        return self._table
+        return self._builder.table
+
+    def feed(self, html):
+        self._builder = TableBuilder()
+        self._transition(ths.DefaultTagHandlingState)
+        super(type(self), self).feed(html) 
+
+    
