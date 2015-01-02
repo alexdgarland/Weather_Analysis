@@ -23,7 +23,7 @@ Unless you want to drill into object permissions in detail, just set it so accou
 
 3)  Create a new database for storing and processing weather data.
 
-4)  Run the database set-up script "source/SQL/Postgres create weather data tables.sql" against the new database.
+4)  Run [the database set-up script](source/SQL/Postgres create weather data tables.sql) against the new database.
     
 Note that at this point I'm assuming the script is run once to set up the database from scratch; if run against a populated database, tables will be dropped and recreated with resulting data loss.  I'm going to have a look at open-source options for schema control and comparison (similar to Microsoft Visual Studio Database Projects) in due course.
 
