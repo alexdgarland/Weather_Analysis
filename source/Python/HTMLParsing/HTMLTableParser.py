@@ -17,8 +17,8 @@ class HTMLTableParser(HTMLParser, object):
     each inner list represents a row in the table.
     
     The methods used to build the in-memory table structure
-    are taken from a state machine (accessed via self._taghandlingstate)
-    which transitions itself as the parser progresses through the document, 
+    are taken from a state machine, which transitions
+    as the parser progresses through the document.
     """
 
     def __init__(self):
