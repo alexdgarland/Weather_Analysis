@@ -43,10 +43,12 @@ An example file is provided in this repo [here](sample_config/kettle.properties.
 
 All code has been tested on Python 2.6 and at least one version of  Python 3.
 For the analytical code (not written as of 02/01/2015 but planned), it's worth downloading the (free) "Anaconda" distribution from Continuum Analytics (https://store.continuum.io/cshop/anaconda/) instead of/ as well as the basic Python distro.  Note that both are running the standard "CPython" reference implementation, but Anaconda comes with a lot of additional 3rd-party libraries pre-installed plus some good GUI tools.
-    
-8)  Pick a secure directory for Python config (e.g. add new folder "Python_Config" under your user home directory).  Add a user- or machine-level environment variable called "PythonAppConfigFolder" with the value being the full path of this folder, so the Python code can find it.
 
-9)  Create a new text file called "PostgresConnection.cfg" and add the following settings, using a layout readable by the Python ConfigParser library (see https://docs.python.org/2/library/configparser.html):
+8) Install psycopg2 (a PostgreSQL driver module for Python).  See [here](http://initd.org/psycopg/docs/install.html) for instructions.  I found that on Windows, using easy_install (Python package manager) resulted in a version which didn't work due to DLL issues, so I would recommeng getting an .exe installer from [here](http://www.stickpeople.com/projects/python/win-psycopg/).
+
+9)  Pick a secure directory for Python config (e.g. add new folder "Python_Config" under your user home directory).  Add a user- or machine-level environment variable called "PythonAppConfigFolder" with the value being the full path of this folder, so the Python code can find it.
+
+10)  Create a new text file called "PostgresConnection.cfg" and add the following settings, using a layout readable by the Python ConfigParser library (see https://docs.python.org/2/library/configparser.html):
 
     credentials->
         user:           The name of the Postgres user account for accessing from Python scripts - may well be the same account as for running ETL jobs.
