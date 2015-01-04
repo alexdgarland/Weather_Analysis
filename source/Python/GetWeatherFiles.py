@@ -4,6 +4,8 @@ from HTMLResponse import HTMLResponse
 from HTMLParsing import HTMLTableParser
 from WeatherDataFile import WeatherDataFile
 import os.path as op
+import PostgresFileListStore as pg
+
 
 import sys
 if sys.version_info[0] >= 3:
@@ -13,6 +15,12 @@ else:
 
 
 indexurl = 'http://www.geos.ed.ac.uk/~weather/jcmb_ws/'
+
+
+def GetDownloadDirectory():
+    scriptpath = op.realpath(__file__)
+    repository_root = op.dirname(op.dirname(op.dirname(scriptpath)))
+    return op.join(repository_root, 'data', 'downloaded')
 
 
 def GetFilesFromTable(table, url=indexurl, fileextension=None):
@@ -45,23 +53,26 @@ def GetFilesFromTable(table, url=indexurl, fileextension=None):
 if __name__ == '__main__':
 
     httpresponse = ur.urlopen(indexurl)
-    
     htmlresponse = HTMLResponse(httpresponse)
-    
     table = HTMLTableParser().GetTable(htmlresponse.bodytext)
-
     files = GetFilesFromTable(table, fileextension='csv')
 
+    # List, download and log files 
+    targetdirectory = GetDownloadDirectory()
 
-    # List and download files 
+    store = pg.PostgresFileListStore()
     
-    targetdirectory = op.join(op.split(op.split(op.realpath(__file__))[0])[0],
-                                       'data', 'downloaded')
-
+    load_id = store.GetNewLoadID()
+    
     for f in files[:1]:
         print('\n' + str(f))
-        print('\nDOWNLOADING FILE "{0}" \nFROM {1} \nTO {2}\n\n'.format(
-            f.filename, f.link, targetdirectory))
-        f.download(targetdirectory)
+        if store.InsertIfNew(f, load_id):
+            print('\nDOWNLOADING FILE "{0}" \nFROM {1} \nTO {2} (as {3})\n\n'.format(
+                f.filename, f.link, targetdirectory, f.updatename))
+            f.download(targetdirectory)
+            store.LogDownload(f)
+        else:
+            print("File \"{0}\" already logged in database as downloaded.".format(
+            f.filename))
     
     print("Finished!")

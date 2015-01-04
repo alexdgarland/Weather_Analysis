@@ -1,4 +1,8 @@
 
+[server]
+host: localhost
+port: 5432
+
 [credentials]
 user: <PUT THE DB USERNAME YOU WANT TO USE HERE>
 password: <PUT THE DB PASSWORD YOU WANT TO USE HERE>

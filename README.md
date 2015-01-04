@@ -50,6 +50,10 @@ For the analytical code (not written as of 02/01/2015 but planned), it's worth d
 
 10)  Create a new text file called "PostgresConnection.cfg" and add the following settings, using a layout readable by the Python ConfigParser library (see https://docs.python.org/2/library/configparser.html):
 
+    server->
+        host:           The name of the server the Postgres instance is running on.  Typically this will just be localhost.
+    server->
+        port:           The port Postgres is running on - unless you've explictly changed it, it will be the default (5432).
     credentials->
         user:           The name of the Postgres user account for accessing from Python scripts - may well be the same account as for running ETL jobs.
     credentials->
