@@ -43,7 +43,7 @@ As this is not a production app it is possible to run ETL and application code u
     credentials->
         password:       The password for the above user account.
     weatheranalysis->
-        database_name:  The name of the Postgres database created in step 3.
+        database_name:  The name of the Postgres database created in step 5.
  
 An example file is provided in this repo [here](sample_config/PostgresConnection.cfg.SAMPLE).
 
@@ -58,7 +58,7 @@ Also note, at this point I'm assuming the script is run once to set up the datab
 10)  Add the following settings to the Kettle config file (<user home directory>/.kettle/kettle.properties):
 
     WEATHERDBHOST       The name of the server the Postgres instance is running on.  Typically this will just be localhost.
-    WEATHERDBNAME       The name of the Postgres database created in step 3.
+    WEATHERDBNAME       The name of the Postgres database created in step 5.
     WEATHERDBPORT       The port Postgres is running on - unless you've explictly changed it, it will be the default (5432).
     WEATHERDBUSER       The name of the Postgres user account for running ETL jobs.
     WEATHERDBPASSWORD   The password for the above user account.
