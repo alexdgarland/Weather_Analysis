@@ -1,0 +1,18 @@
+
+# Ordered list of .sql DDL scripts to run against database.
+# Use hash marks to embed full-line comments.
+# Empty lines (including whitespace-only) will also be ignored.
+
+staging.schema.sql
+staging.JCMB_Weather_Loads.table.sql
+staging.AssignAndGetNewLoadID.function.sql
+staging.JCMB_Weather_LoadFiles.table.sql
+staging.InsertFileRecordIfNew.function.sql
+staging.LogFileDownloadCompletion.function.sql
+staging.JCMB_Weather_Staging.table.sql
+staging.JCMB_Weather_Staging_Summary.view.sql
+public.JCMB_Weather_Data.table.sql
+staging.Convert_WeatherReading_DateTime.function.sql
+staging.JCMB_Weather_Staging_Conversions.view.sql
+staging.Update_Existing_Weather_Data.function.sql
+staging.Insert_New_Weather_Data.function.sql

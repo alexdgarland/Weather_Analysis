@@ -4,7 +4,7 @@ from HTMLResponse import HTMLResponse
 from HTMLParsing import HTMLTableParser
 from WeatherDataFile import WeatherDataFile
 import os.path as op
-import PostgresFileListStore as pg
+import Postgres.FileListStore as pg
 
 
 import sys
