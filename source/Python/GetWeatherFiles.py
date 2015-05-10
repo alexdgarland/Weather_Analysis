@@ -1,20 +1,9 @@
 #!/usr/bin/python
 
-from HTMLResponse import HTMLResponse
-from HTMLParsing import HTMLTableParser
-from WeatherDataFile import WeatherDataFile
+
 import os.path as op
 import Postgres.FileListStore as pg
-
-
-import sys
-if sys.version_info[0] >= 3:
-    import urllib.request as ur
-else:
-    import urllib2 as ur
-
-
-indexurl = 'http://www.geos.ed.ac.uk/~weather/jcmb_ws/'
+from FileList import FileList
 
 
 def GetDownloadDirectory():
@@ -23,56 +12,26 @@ def GetDownloadDirectory():
     return op.join(repository_root, 'data', 'downloaded')
 
 
-def GetFilesFromTable(table, url=indexurl, fileextension=None):
-    """
-    Take a table (nested list, parsed from HTML)
-    and output a list of file objects for each relevant row.
-    """
-    def _isfilerow(row):
-        return (row[1] != 'Name' and row[3] != '-')
-
-    def _matchesextension(filename):
-        if fileextension is None:
-            return True
-        else:
-            return (filename.endswith(fileextension))
-
-    files = []
-    for row in table:    
-        if _isfilerow(row):
-            filename = row[1]['text']
-            if _matchesextension(filename):
-                link = op.join(url, row[1]['href'])
-                date = row[2]
-                size = row[3]
-                files.append(WeatherDataFile(filename, link, date, size))   
-    return files
-
-
-
 if __name__ == '__main__':
-
-    httpresponse = ur.urlopen(indexurl)
-    htmlresponse = HTMLResponse(httpresponse)
-    table = HTMLTableParser().GetTable(htmlresponse.bodytext)
-    files = GetFilesFromTable(table, fileextension='csv')
-
+    
     # List, download and log files 
     targetdirectory = GetDownloadDirectory()
-
-    store = pg.PostgresFileListStore()
     
+    store = pg.PostgresFileListStore()
     load_id = store.GetNewLoadID()
     
-    for f in files[:1]:
+    for f in FileList('http://www.geos.ed.ac.uk/~weather/jcmb_ws/').GetFiles():
+
         print('\n' + str(f))
+        
         if store.InsertIfNew(f, load_id):
-            print('\nDOWNLOADING FILE "{0}" \nFROM {1} \nTO {2} (as {3})\n\n'.format(
-                f.filename, f.link, targetdirectory, f.updatename))
-            f.download(targetdirectory)
+            print('\nDOWNLOADING FILE ', f.filename)
+            print('FROM ', f.link)
+            print('TO {0} (as {1})\n'.format(targetdirectory, f.updatename))            
+            f.download(targetdirectory)            
             store.LogDownload(f)
         else:
-            print("File \"{0}\" already logged in database as downloaded.".format(
-            f.filename))
+            print("File \"{0}\" already logged as downloaded.".format(f.filename))
     
     print("Finished!")
+

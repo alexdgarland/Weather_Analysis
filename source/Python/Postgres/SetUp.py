@@ -1,6 +1,10 @@
 #!/usr/bin/python
 
-import configparser as cp
+import sys
+if sys.version_info.major >= 3:
+    import configparser as cp
+else:
+    import ConfigParser as cp
 import os
 import os.path as osp
 import psycopg2 as pg
