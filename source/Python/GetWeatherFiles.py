@@ -23,15 +23,15 @@ if __name__ == '__main__':
     for f in FileList('http://www.geos.ed.ac.uk/~weather/jcmb_ws/').GetFiles():
 
         print('\n' + str(f))
+        current_file_state = store.RegisterFile(f, load_id)
+        print("File state is recorded as \"{0}\"".format(current_file_state))
         
-        if store.InsertIfNew(f, load_id):
+        if current_file_state == 'registered':
             print('\nDOWNLOADING FILE ', f.filename)
             print('FROM ', f.link)
-            print('TO {0} (as {1})\n'.format(targetdirectory, f.updatename))            
+            print('TO {0} (as {1})\n'.format(targetdirectory, f.downloadname))            
             f.download(targetdirectory)            
-            store.LogDownload(f)
-        else:
-            print("File \"{0}\" already logged as downloaded.".format(f.filename))
+            store.LogDownload(f, load_id)
     
     print("Finished!")
 

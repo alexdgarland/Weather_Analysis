@@ -6,9 +6,11 @@
 staging.schema.sql
 staging.JCMB_Weather_Loads.table.sql
 staging.AssignAndGetNewLoadID.function.sql
+staging.file_state.type.sql
 staging.JCMB_Weather_LoadFiles.table.sql
+staging.JCMB_Weather_LoadFile_Events.table.sql
 staging.JCMB_Weather_LoadFiles_WithStatus.view.sql
-staging.InsertFileRecordIfNew.function.sql
+staging.RegisterFile.function.sql
 staging.LogFileDownloadCompletion.function.sql
 staging.JCMB_Weather_Staging.table.sql
 staging.JCMB_Weather_Staging_Summary.view.sql

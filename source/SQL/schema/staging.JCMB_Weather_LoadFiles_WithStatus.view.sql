@@ -3,11 +3,13 @@ AS
     SELECT  lf."file_id",
             lf."source_file_name",
             lf."source_file_modified_datetime",
+            lf."download_name",
             rnk."file_event_state"              AS "current_state",
             rnk."file_event_load_id"            AS "latest_load_id",
             rnk."file_event_timestamp"          AS "latest_event_timestamp"
     FROM    staging."JCMB_Weather_LoadFiles" AS lf
-            INNER JOIN  (
+            LEFT OUTER JOIN 
+                        (
                         /* Rank events so we can get the latest (current) details as rank 1 */
                         SELECT  "file_id",
                                 "file_event_state",

@@ -18,19 +18,19 @@ class PostgresFileListStore(object):
             result = cur.fetchone()[0]
         return result
 
-    def InsertIfNew(self, file, load_id):
+    def RegisterFile(self, file, load_id):
         with self._conn.cursor() as cur:
-            query="SELECT staging.\"InsertFileRecordIfNew\"(%s,%s, %s, %s);"
-            params=(file.filename, file.modified_date, file.updatename, load_id)
+            query="SELECT out_current_state FROM staging.\"RegisterFile\"(%s,%s,%s);"
+            params=(file.filename, file.modified_date, load_id)
             cur.execute(query, params)
             self._conn.commit()
             result = cur.fetchone()[0]
         return result
        
-    def LogDownload(self, file):
+    def LogDownload(self, file, load_id):
         with self._conn.cursor() as cur:
-            query="SELECT staging.\"LogFileDownloadCompletion\"(%s,%s);"
-            params=(file.filename, file.modified_date)
+            query="SELECT staging.\"LogFileDownloadCompletion\"(%s,%s,%s,%s);"
+            params=(file.filename, file.modified_date, file.downloadname, load_id)
             cur.execute(query, params)
             self._conn.commit()
         

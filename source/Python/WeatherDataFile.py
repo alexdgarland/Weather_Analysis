@@ -51,14 +51,14 @@ class WeatherDataFile(object):
             return None
     
     @property
-    def updatename(self):
+    def downloadname(self):
         regexoutput = re.match('([A-Za-z0-9_\s]+)(.[A-Za-z]+)', self.filename)
         basename, extension = regexoutput.group(1), regexoutput.group(2)
         formatted_date = self.modified_date.strftime('%Y%m%d_%H%M')
         return basename + '_' + formatted_date + extension
         
     def download(self, targetdirectory, downloader=default_downloader()):
-        targetfile = op.join(targetdirectory, self.updatename)
+        targetfile = op.join(targetdirectory, self.downloadname)
         downloader.retrieve(self.link, targetfile)  
         
     def __str__(self):
