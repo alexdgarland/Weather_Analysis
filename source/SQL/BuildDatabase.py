@@ -81,7 +81,8 @@ def BuildDatabase():
     runner.LogStart()
 
     # Run each script against database in order
-    for scriptname in GetBuildList():    
+    for scriptname in GetBuildList():
+        print(scriptname)
         runner.RunScript(scriptname)
     
 
