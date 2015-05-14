@@ -4,8 +4,11 @@
 # Empty lines (including whitespace-only) will also be ignored.
 
 staging.schema.sql
+staging.load_state.type.sql
+staging.IsActiveState.function.sql
 staging.JCMB_Weather_Loads.table.sql
-staging.AssignAndGetNewLoadID.function.sql
+staging.LoadIsActive.function.sql
+staging.GetLoadID.function.sql
 staging.file_state.type.sql
 staging.JCMB_Weather_LoadFiles.table.sql
 staging.JCMB_Weather_LoadFile_Events.table.sql

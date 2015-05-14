@@ -1,7 +1,5 @@
-﻿DROP TABLE IF EXISTS staging."JCMB_Weather_Loads" CASCADE;
-DROP TYPE IF EXISTS load_state;
-
-CREATE TYPE load_state AS ENUM ('initialised', 'in progress', 'files staged', 'completed okay', 'failed');
+﻿
+DROP TABLE IF EXISTS staging."JCMB_Weather_Loads" CASCADE;
 
 CREATE TABLE staging."JCMB_Weather_Loads"
 	(
