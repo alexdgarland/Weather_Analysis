@@ -205,6 +205,30 @@
       <xloc>334</xloc>
       <yloc>199</yloc>
       </entry>
+    <entry>
+      <name>Archive Data File</name>
+      <description/>
+      <type>SHELL</type>
+      <filename>&#x24;&#x7b;Internal.Job.Filename.Directory&#x7d;&#x5c;..&#x5c;Python&#x5c;MoveProcessedFile.py</filename>
+      <work_directory/>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>N</insertScript>
+      <script/>
+      <loglevel>Basic</loglevel>
+      <argument0>&#x24;&#x7b;file_name&#x7d;</argument0>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>880</xloc>
+      <yloc>198</yloc>
+      </entry>
   </entries>
   <hops>
     <hop>
@@ -228,6 +252,15 @@
     <hop>
       <from>Set File State - Staging Started</from>
       <to>Load Single File To Staging</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Set File State - Staging Complete</from>
+      <to>Archive Data File</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
