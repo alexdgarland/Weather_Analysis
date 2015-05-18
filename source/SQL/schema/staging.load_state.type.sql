@@ -1,3 +1,3 @@
 
-DROP TYPE IF EXISTS load_state CASCADE;
-CREATE TYPE load_state AS ENUM ('initialised', 'in progress', 'completed okay', 'failed', 'automatically closed');
+DROP TYPE IF EXISTS staging.load_state CASCADE;
+CREATE TYPE staging.load_state AS ENUM ('in progress', 'completed okay', 'failed', 'automatically closed');

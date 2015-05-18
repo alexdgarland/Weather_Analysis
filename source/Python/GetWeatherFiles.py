@@ -30,14 +30,18 @@ if __name__ == '__main__':
     targetdirectory = GetDownloadDirectory()    
     store = pg.PostgresFileListStore()
     
+    print(sys.argv)    
+    print(len(sys.argv))
+    
     # Get load ID, either from command line or database
     load_id = GetLoadIDFromArgs(sys.argv)
     if load_id is not None:
+        print("Load ID supplied from command line:", load_id)
         if not (store.LoadIsActive(load_id)):
             raise Exception('Load for supplied ID is not active')
     else:
         load_id = store.GetLoadID()
-    
+        print("Load ID obtained from database:", load_id)
 
     # Loop through list of available files and download
     

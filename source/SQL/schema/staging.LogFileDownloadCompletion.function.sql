@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION staging."LogFileDownloadCompletion"
     (
     filename            character varying(1000),
     modified_date       timestamp without time zone,
-    in_download_name   character varying(1000),
+    in_download_name    character varying(1000),
     load_id             integer
     )
 RETURNS integer
@@ -20,7 +20,7 @@ BEGIN
     
     INSERT INTO staging."JCMB_Weather_LoadFile_Events"
         ("file_id", "file_event_state", "file_event_load_id")
-    SELECT  "downloaded_file_id", 'downloaded'::file_state, load_id;
+    SELECT  "downloaded_file_id", 'downloaded'::staging.file_state, load_id;
     
     RETURN 0;
     

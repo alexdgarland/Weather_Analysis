@@ -4,7 +4,7 @@ CREATE TABLE staging."JCMB_Weather_LoadFile_Events"
     (
     "file_event_id"             serial NOT NULL,
     "file_id"                   integer NOT NULL,
-    "file_event_state"          file_state NOT NULL,
+    "file_event_state"          staging.file_state NOT NULL,
     "file_event_load_id"        integer NOT NULL,
     "file_event_timestamp"      timestamp without time zone NOT NULL DEFAULT clock_timestamp()
     )

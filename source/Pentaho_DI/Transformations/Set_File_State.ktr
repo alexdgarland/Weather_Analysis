@@ -126,15 +126,16 @@
     <single_statement>N</single_statement>
     <replace_variables>N</replace_variables>
     <quoteString>N</quoteString>
-    <sql>UPDATE staging.&#x22;JCMB_Weather_LoadFiles&#x22; SET file_latest_state &#x3d; &#x3f; WHERE file_id &#x3d; &#x3f;&#x3b;</sql>
+    <sql>INSERT INTO staging.&#x22;JCMB_Weather_LoadFile_Events&#x22;&#xd;&#xa;			&#x28;&#xd;&#xa;			file_id,&#xd;&#xa;			file_event_state,&#xd;&#xa;			file_event_load_id&#xd;&#xa;			&#x29;&#xd;&#xa;VALUES &#x28;&#x3f;, &#x3f;, &#x3f;&#x29;&#x3b;&#xd;&#xa;</sql>
     <set_params>N</set_params>
     <insert_field/>
     <update_field/>
     <delete_field/>
     <read_field/>
     <arguments>
-       <argument><name>file_state_to_set</name></argument>
        <argument><name>file_id</name></argument>
+       <argument><name>file_state_to_set</name></argument>
+       <argument><name>load_id</name></argument>
     </arguments>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
@@ -172,6 +173,18 @@
         <name>file_state_to_set</name>
         <variable>&#x24;&#x7b;file_state_to_set&#x7d;</variable>
         <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>load_id</name>
+        <variable>&#x24;&#x7b;load_id&#x7d;</variable>
+        <type>Integer</type>
         <format/>
         <currency/>
         <decimal/>

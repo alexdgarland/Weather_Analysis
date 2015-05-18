@@ -1,2 +1,2 @@
-DROP TYPE IF EXISTS file_state CASCADE;
-CREATE TYPE file_state AS ENUM ('registered', 'downloaded', 'staging started', 'staging complete', 'loaded');
+DROP TYPE IF EXISTS staging.file_state CASCADE;
+CREATE TYPE staging.file_state AS ENUM ('registered', 'downloaded', 'staging started', 'staging complete', 'loaded');

@@ -13,7 +13,7 @@ import datetime as dt
 
 
 def GetDefaultLogger():
-    logpath = op.join(op.dirname(op.realpath(__file__)), 'Build.log')
+    logpath = op.join(op.dirname(op.realpath(__file__)), 'DBBuild.log')
     def Logger(message, mode='a+'):
         with open(logpath, mode) as f:
             f.write(message)

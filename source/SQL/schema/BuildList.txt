@@ -5,7 +5,6 @@
 
 staging.schema.sql
 staging.load_state.type.sql
-staging.IsActiveState.function.sql
 staging.JCMB_Weather_Loads.table.sql
 staging.LoadIsActive.function.sql
 staging.GetLoadID.function.sql

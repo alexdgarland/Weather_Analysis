@@ -9,7 +9,7 @@ BEGIN
     SELECT  COUNT(*) != 0 
     FROM    staging."JCMB_Weather_Loads"
     WHERE   load_id = load_id_to_check
-    AND     staging."IsActiveState"(load_latest_state)
+    AND     load_latest_state = 'in progress'
     INTO    load_is_active;
 
     RETURN load_is_active;

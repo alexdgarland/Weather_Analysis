@@ -9,7 +9,7 @@ BEGIN
     -- See if we can get an open load ID from control table
     SELECT  load_id
     FROM    staging."JCMB_Weather_Loads"
-    WHERE   staging."IsActiveState"(load_latest_state)
+    WHERE   load_latest_state = 'in progress'
     INTO    out_load_id
     ORDER BY load_start_timestamp DESC
     LIMIT 1;
@@ -19,7 +19,7 @@ BEGIN
     -- These should not exist but we should "park" them so can check later.
         UPDATE  staging."JCMB_Weather_Loads"
         SET     load_latest_state = 'automatically closed'
-        WHERE   staging."IsActiveState"(load_latest_state)
+        WHERE   load_latest_state = 'in progress'
         AND     load_id <> out_load_id;
     ELSE
     -- Create a new load ID and use it

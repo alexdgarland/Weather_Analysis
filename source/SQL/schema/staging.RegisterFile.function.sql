@@ -11,7 +11,7 @@ RETURNS TABLE
     out_file_id integer
     ,out_source_file_name character varying
     ,out_source_file_modified_datetime timestamp without time zone
-    ,out_current_state file_state
+    ,out_current_state staging.file_state
     ,out_latest_load_id integer
     ,out_latest_event_timestamp timestamp without time zone
     ) AS
@@ -35,7 +35,7 @@ BEGIN
 
     IF new_file_id IS NOT NULL THEN
         INSERT INTO staging."JCMB_Weather_LoadFile_Events" ("file_id", "file_event_state", "file_event_load_id")
-        SELECT new_file_id, 'registered'::file_state, load_id;
+        SELECT new_file_id, 'registered'::staging.file_state, load_id;
     END IF;
 
     -- Get current file status details;
