@@ -10,7 +10,8 @@ from FileDownload.FileList import FileList
 
 def GetDownloadDirectory():
     scriptpath = op.realpath(__file__)
-    repository_root = op.dirname(op.dirname(op.dirname(scriptpath)))
+    getdir = op.dirname
+    repository_root = getdir(getdir(getdir(getdir(scriptpath))))
     return op.join(repository_root, 'data', 'downloaded')
 
 
