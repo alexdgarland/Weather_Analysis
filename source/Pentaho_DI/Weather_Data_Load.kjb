@@ -88,8 +88,8 @@
       </parameters>      <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>221</xloc>
-      <yloc>67</yloc>
+      <xloc>154</xloc>
+      <yloc>68</yloc>
       </entry>
     <entry>
       <name>START</name>
@@ -108,8 +108,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>67</xloc>
-      <yloc>67</yloc>
+      <xloc>40</xloc>
+      <yloc>69</yloc>
       </entry>
     <entry>
       <name>Read Back File Names &#x26; IDs for Load</name>
@@ -144,8 +144,8 @@
             </parameter>      </parameters>      <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>566</xloc>
-      <yloc>66</yloc>
+      <xloc>509</xloc>
+      <yloc>67</yloc>
       </entry>
     <entry>
       <name>Load Files To Staging</name>
@@ -182,8 +182,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>777</xloc>
-      <yloc>67</yloc>
+      <xloc>699</xloc>
+      <yloc>66</yloc>
       </entry>
     <entry>
       <name>Execute File Download Script</name>
@@ -206,8 +206,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>387</xloc>
-      <yloc>66</yloc>
+      <xloc>294</xloc>
+      <yloc>67</yloc>
       </entry>
   </entries>
   <hops>

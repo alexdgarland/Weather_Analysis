@@ -1,10 +1,10 @@
-﻿
-DROP TABLE IF EXISTS staging."JCMB_Weather_Staging" CASCADE;
 
-CREATE TABLE staging."JCMB_Weather_Staging"
+DROP TABLE IF EXISTS staging."JCMB_Weather_Staging_History" CASCADE;
+
+CREATE TABLE staging."JCMB_Weather_Staging_History"
     (
-    "staged_row_id"			serial,
-    "file_id"				integer NOT NULL,
+    "staged_row_id"			            integer,
+    "file_id"				            integer,
     "date_time_text_source"             character varying (500),
     "atmospheric_pressure_mbar"         character varying (500),
     "rainfall_mm"                       character varying (500),
@@ -13,12 +13,9 @@ CREATE TABLE staging."JCMB_Weather_Staging"
     "surface_temperature_c"             character varying (500),
     "relative_humidity_percentage"      character varying (500),
     "solar_flux_kw_per_m2"             	character varying (500),
-    "battery_v"                         character varying (500)
-    )
-WITH (OIDS=FALSE);
+    "battery_v"                         character varying (500),
+    "load_id"                           integer
+    );
 
-ALTER TABLE staging."JCMB_Weather_Staging" OWNER TO postgres;
-
-ALTER TABLE staging."JCMB_Weather_Staging"
-    ADD CONSTRAINT "PK_JCMB_Weather_Staging"
-        PRIMARY KEY ("staged_row_id");
+ALTER TABLE staging."JCMB_Weather_Staging_History" OWNER TO postgres;
+ 

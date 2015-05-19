@@ -19,5 +19,9 @@ staging.JCMB_Weather_Staging_Summary.view.sql
 public.JCMB_Weather_Data.table.sql
 staging.Convert_WeatherReading_DateTime.function.sql
 staging.JCMB_Weather_Staging_Conversions.view.sql
+staging.audit_entry_type.type.sql
+staging.JCMB_Weather_Data_Audit.table.sql
+staging.JCMB_Weather_Staging_History.table.sql
 staging.Update_Existing_Weather_Data.function.sql
 staging.Insert_New_Weather_Data.function.sql
+staging.Close_Load_From_Staging,function.sql
