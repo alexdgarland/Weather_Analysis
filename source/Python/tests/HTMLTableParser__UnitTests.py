@@ -6,8 +6,8 @@ import testhelper as t
 t.register_maincodefolder()
 
 # Get module(s) under test
-import HTMLParsing as hp
-from HTMLParsing.Errors import BadHTMLError
+import FileDownload.HTMLParsing as hp
+from FileDownload.HTMLParsing.Errors import BadHTMLError
 
 
 def get_expectedtable():

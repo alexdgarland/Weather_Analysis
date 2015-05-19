@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+
 import os.path as op
 import sys
 if sys.version_info[0] >= 3:
@@ -7,9 +8,9 @@ if sys.version_info[0] >= 3:
 else:
     import urllib2 as ur
 import re
-from HTMLResponse import HTMLResponse
-from HTMLParsing import HTMLTableParser
-from WeatherDataFile import WeatherDataFile
+from .HTMLResponse import HTMLResponse
+from .WeatherDataFile import WeatherDataFile
+from .HTMLParsing import HTMLTableParser
 
 
 defaultfilepattern = 'JCMB_[0-9]{4}_[A-Z][a-z]{2}.csv'

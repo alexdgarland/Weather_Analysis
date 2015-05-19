@@ -3,8 +3,9 @@
 
 import os.path as op
 import sys
+sys.path.append(op.dirname(op.dirname(__file__)))
 import Postgres.FileListStore as pg
-from FileList import FileList
+from FileDownload.FileList import FileList
 
 
 def GetDownloadDirectory():

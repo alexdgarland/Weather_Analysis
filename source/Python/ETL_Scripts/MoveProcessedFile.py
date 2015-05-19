@@ -8,7 +8,7 @@ import sys
 
 
 getdir = os.path.dirname
-datadir = os.path.join(getdir(getdir(getdir(__file__))), "data")
+datadir = os.path.join(getdir(getdir(getdir(getdir(__file__)))), "data")
 
 
 def MoveFile(filename):

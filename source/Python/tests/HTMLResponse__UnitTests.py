@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+
 import unittest
 
 import MockHTTPResponse as mhr
@@ -7,7 +8,8 @@ import MockHTTPResponse as mhr
 import testhelper as t
 t.register_maincodefolder()
 # Get module under test
-import HTMLResponse as hr
+import FileDownload.HTMLResponse as hr
+
 
 class Tests_HTMLResponse(unittest.TestCase):
         

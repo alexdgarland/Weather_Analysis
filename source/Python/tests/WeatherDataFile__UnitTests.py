@@ -5,7 +5,7 @@ import unittest
 import testhelper as t
 t.register_maincodefolder()
 # Get module under test
-import WeatherDataFile as wdf
+import FileDownload.WeatherDataFile as wdf
 
 import datetime as dt
 

@@ -5,8 +5,8 @@ import unittest
 import testhelper as t
 t.register_maincodefolder()
 # Get module under test
-import FileList as f
-import WeatherDataFile as wdf
+import FileDownload.FileList as f
+import FileDownload.WeatherDataFile as wdf
 import os.path as op
 
 

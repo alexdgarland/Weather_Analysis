@@ -189,7 +189,7 @@
       <name>Execute File Download Script</name>
       <description/>
       <type>SHELL</type>
-      <filename>&#x24;&#x7b;Internal.Job.Filename.Directory&#x7d;&#x2f;..&#x2f;Python&#x2f;GetWeatherFiles.py</filename>
+      <filename>&#x24;&#x7b;Internal.Job.Filename.Directory&#x7d;&#x2f;..&#x2f;Python&#x2f;ETL_Scripts&#x2f;GetWeatherFiles.py</filename>
       <work_directory/>
       <arg_from_previous>N</arg_from_previous>
       <exec_per_row>N</exec_per_row>
