@@ -76,13 +76,13 @@ class Tests_WeatherDataFile_ObjectOverrides(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
-class Tests_WeatherDataFile_UpdateName(unittest.TestCase):
+class Tests_WeatherDataFile_DownloadName(unittest.TestCase):
     
-    def test_updatename(self):
+    def test_downloadname(self):
         file = wdf.WeatherDataFile('test_file.csv', '<link>',
                                    '01-Jan-2014 12:30', '2.4M')
         expectedname = 'test_file_20140101_1230.csv'
-        self.assertEqual(expectedname, file.updatename)
+        self.assertEqual(expectedname, file.downloadname)
 
 
 if __name__ == '__main__':

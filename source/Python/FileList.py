@@ -18,12 +18,17 @@ defaultfilepattern = 'JCMB_[0-9]{4}_[A-Z][a-z]{2}.csv'
 class FileList(object):
     
     
-    def __init__(self, url):
+    def __init__(self, url=None):
+        self.SetFromURL(url)
+        
+        
+    def SetFromURL(self, url):
         self._url = url
-        httpresponse = ur.urlopen(url)
-        htmlresponse = HTMLResponse(httpresponse)
-        parser = HTMLTableParser()
-        self._htmlfiletable = parser.GetTable(htmlresponse.bodytext)
+        if url is not None:
+            httpresponse = ur.urlopen(url)
+            htmlresponse = HTMLResponse(httpresponse)
+            parser = HTMLTableParser()
+            self._htmlfiletable = parser.GetTable(htmlresponse.bodytext)
 
         
     def GetFiles(self, filepattern=None):
