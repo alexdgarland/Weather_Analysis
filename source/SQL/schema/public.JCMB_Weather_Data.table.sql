@@ -11,7 +11,7 @@ CREATE TABLE public."JCMB_Weather_Data"
     "surface_temperature_c"         numeric(15,3)               NOT NULL,
     "relative_humidity_percentage"  numeric(15,3)               NOT NULL,
     "solar_flux_kw_per_m2"          numeric(15,3)               NOT NULL,
-    "battery_v"                     numeric(15,3)               NOT NULL
+    "battery_v"                     numeric(15,3)               NULL
     );
 
 ALTER TABLE public."JCMB_Weather_Data"  OWNER TO postgres;

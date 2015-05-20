@@ -19,6 +19,11 @@
             <default_value/>
             <description/>
         </parameter>
+        <parameter>
+            <name>load_id</name>
+            <default_value/>
+            <description/>
+        </parameter>
     </parameters>
     <log>
 <trans-log-table><connection/>

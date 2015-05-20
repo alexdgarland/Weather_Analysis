@@ -63,6 +63,8 @@ BEGIN
             load_id_to_log
     FROM    delete_query;
             
+    RETURN 0;
+    
 END
 $BODY$
 LANGUAGE PLPGSQL;

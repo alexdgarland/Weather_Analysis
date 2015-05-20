@@ -15,4 +15,4 @@ ALTER TABLE staging."JCMB_Weather_Data_Audit" OWNER TO postgres;
 
 ALTER TABLE staging."JCMB_Weather_Data_Audit"
     ADD CONSTRAINT PK_JCMB_Weather_Data_Audit
-        PRIMARY KEY ("date_time");
+        PRIMARY KEY (entry_id);
